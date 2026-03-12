@@ -59,7 +59,7 @@
     "*.{ts,tsx,js,jsx,json,md,yml}": [
       "prettier --write"
     ],
-    "schema.prisma": [
+    "prisma/schema.prisma": [
       "prisma format"
     ]
   }
