@@ -1,2 +1,3 @@
+set -e
 pnpm run format:check
 pnpm run type:check
