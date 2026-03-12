@@ -1,4 +1,4 @@
-branch=$(git rev-parse --abbrev-ref HEAD)
+branch=$(git branch --show-current)
 
 if [ "$branch" = "main" ]; then
   echo "❌ Direct commits to main are not allowed."
@@ -7,4 +7,3 @@ fi
 
 pnpm run lint-staged
 pnpm run type:check
-# pnpm test # in-future
