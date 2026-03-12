@@ -11,3 +11,4 @@ out/
 *.log
 *.tsbuildinfo
 vitest.config.ts
+pnpm-*.yaml
