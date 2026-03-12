@@ -45,3 +45,4 @@ next-env.d.ts
 
 # garbage data
 playground
+/generated/prisma
