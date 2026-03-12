@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/youtube_doubt_ci' }}
+  AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-auth-secret-fallback' }}
+
 jobs:
   quality:
     name: Code Quality
@@ -44,9 +48,6 @@ jobs:
     name: Build Test
     runs-on: ubuntu-latest
     needs: quality
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
