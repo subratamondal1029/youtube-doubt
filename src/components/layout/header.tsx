@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import { buttonVariants } from "@/components/ui/button";
 import { auth } from "@/auth";
+import { ThemeToggle } from "../ThemeToggle";
 
 const Header = async () => {
   const session = await auth();
@@ -35,12 +36,15 @@ const Header = async () => {
             </li>
           </ul>
         </nav>
-        <Link
-          href="/api/auth/signin"
-          className={buttonVariants({ variant: "default", size: "sm" })}
-        >
-          Sign In
-        </Link>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <Link
+            href="/api/auth/signin"
+            className={buttonVariants({ variant: "default", size: "sm" })}
+          >
+            Sign In
+          </Link>
+        </div>
       </div>
     </header>
   );

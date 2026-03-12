@@ -5,7 +5,7 @@ const EntryLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <>
       <Header />
-      <main className="w-full min-h-screen pt-14">{children}</main>
+      <main className="w-full min-h-screen mt-28 px-4">{children}</main>
     </>
   );
 };
