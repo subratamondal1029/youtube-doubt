@@ -55,8 +55,11 @@
     "*.{ts,tsx,js,jsx}": [
       "eslint --fix"
     ],
-    "*.{ts,tsx,js,jsx,json,md,yml,prisma}": [
+    "*.{ts,tsx,js,jsx,json,md,yml}": [
       "prettier --write"
+    ],
+    "schema.prisma": [
+      "prisma format"
     ]
   }
 }
