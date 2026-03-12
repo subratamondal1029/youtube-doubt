@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/youtube_doubt_ci' }}
+  AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-auth-secret-fallback' }}
+
 jobs:
   quality:
     name: Code Quality
@@ -19,6 +23,7 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma generate
       - run: pnpm type:check
       - run: pnpm lint
       - run: pnpm format:check
@@ -53,6 +58,7 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma generate
       - run: pnpm build
 
   # codeql:
