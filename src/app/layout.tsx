@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import ThemeProvider from "@/components/theme-provider";
 import "./globals.css";
 import SessionWrapper from "@/components/sessionWrapper";
+import { auth } from "@/auth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -23,15 +24,16 @@ export const metadata: Metadata = {
     "Ask questions and get answers about YouTube content especially made for engineering students.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SessionWrapper>
+        <SessionWrapper session={session}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
