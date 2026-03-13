@@ -3,8 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Globe } from "lucide-react";
 import Youtube from "@/icons/Youtube";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
+
+  if (session?.user) {
+    redirect("/chat");
+  }
   return (
     <div className="h-screen bg-background flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
       {/* Subtle blue glow background */}

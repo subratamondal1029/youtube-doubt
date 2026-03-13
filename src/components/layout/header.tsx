@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { MenuIcon } from "lucide-react";
 import Logo from "@/components/Logo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { auth } from "@/auth";
 import { ThemeToggle } from "../ThemeToggle";
 
 const navLinks = [
@@ -13,12 +11,6 @@ const navLinks = [
 ];
 
 const Header = async () => {
-  const session = await auth();
-
-  if (session?.user) {
-    redirect("/chat");
-  }
-
   return (
     <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl rounded-2xl backdrop-blur-md bg-white/80 dark:bg-slate-950/80 border border-gray-200 dark:border-slate-800 shadow-lg">
       <div className="flex items-center justify-between px-4 py-4">
