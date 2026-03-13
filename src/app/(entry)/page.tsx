@@ -51,7 +51,7 @@ export default function LandingPage() {
         <Button
           asChild
           size="lg"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 rounded-full text-base font-medium shadow-lg shadow-blue-500/20 transition-all duration-200 hover:shadow-blue-500/40 hover:scale-[1.02]"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 rounded-full text-base font-medium shadow-lg shadow-blue-500/20 transition-all duration-200 hover:shadow-blue-500/40"
         >
           <Link href="/chat">Get Started →</Link>
         </Button>
