@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SUPPORT_EMAIL } from "@/constant";
 import { Mail } from "lucide-react";
 
 export default function ContactPage() {
@@ -22,7 +23,7 @@ export default function ContactPage() {
         size="lg"
         className="mt-6 bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/40 text-white px-8 rounded-full shadow-lg shadow-blue-500/20 transition-all duration-200"
       >
-        <a href="mailto:subratamondal@tutanota.com">subratamondal@tutanota.com</a>
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
       </Button>
 
       <p className="mt-4 text-xs text-muted-foreground/60">Opens your default mail app.</p>
