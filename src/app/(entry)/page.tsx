@@ -13,7 +13,7 @@ export default async function LandingPage() {
     redirect("/chat");
   }
   return (
-    <div className="h-screen bg-background flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
+    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
       {/* Subtle blue glow background */}
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_60%,rgba(59,130,246,0.08),transparent)]" />
 
