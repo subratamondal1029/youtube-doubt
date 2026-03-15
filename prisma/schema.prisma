@@ -87,7 +87,7 @@ model Session {
 // auth.js schema ends
 
 model Profile {
-  userId          String        @unique
+  userId          String        @id
   personalization String?
   language        CHAT_LANGUAGE @default(HINGLISH)
   withTimestamp   Boolean       @default(true)
@@ -135,6 +135,7 @@ model RawSubtitle {
   updatedAt DateTime @updatedAt
 
   @@index([videoId])
+  @@index([chunkId])
   @@index([start, end])
   @@map("raw_subtitles")
 }
