@@ -24,7 +24,7 @@ enum PLATFORM {
 
 enum MESSAGE_ROLE {
   USER
-  AI
+  ASSISTANT
 }
 
 enum AI_MODEL {
@@ -87,10 +87,10 @@ model Session {
 // auth.js schema ends
 
 model Profile {
-  userId        String        @unique
-  personalize   String?
-  language      CHAT_LANGUAGE @default(HINGLISH)
-  withTimestamp Boolean       @default(true)
+  userId          String        @unique
+  personalization String?
+  language        CHAT_LANGUAGE @default(HINGLISH)
+  withTimestamp   Boolean       @default(true)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
