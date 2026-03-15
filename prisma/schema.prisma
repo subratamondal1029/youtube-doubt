@@ -121,15 +121,15 @@ model Video {
 model RawSubtitle {
   id       String            @id @default(uuid())
   videoId  String
-  chunkId  String
+  chunkId  String?
   language SUBTITLE_LANGUAGE
 
   start   Int
   end     Int
   content String
 
-  video Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  chunk ChunkSubtitle @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  video Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  chunk ChunkSubtitle? @relation(fields: [chunkId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
