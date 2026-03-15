@@ -5,6 +5,7 @@ import ThemeProvider from "@/components/theme-provider";
 import "./globals.css";
 import SessionWrapper from "@/components/sessionWrapper";
 import { auth } from "@/auth";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -40,7 +41,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <TooltipProvider>{children}</TooltipProvider>
           </ThemeProvider>
         </SessionWrapper>
       </body>
