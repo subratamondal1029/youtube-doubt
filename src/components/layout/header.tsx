@@ -35,10 +35,7 @@ const Header = async () => {
         {/* Right side actions */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link
-            href="/api/auth/signin"
-            className={buttonVariants({ variant: "default", size: "sm" })}
-          >
+          <Link href="/sign-in" className={buttonVariants({ variant: "default", size: "sm" })}>
             Sign In
           </Link>
 
@@ -71,7 +68,7 @@ const Header = async () => {
                 </ul>
                 <div className="mt-auto pt-6">
                   <Link
-                    href="/api/auth/signin"
+                    href="sign-in"
                     className={buttonVariants({
                       variant: "default",
                       size: "sm",
