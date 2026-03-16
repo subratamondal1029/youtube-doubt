@@ -1,18 +1,31 @@
-import React from "react";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import SideBar from "@/components/layout/SideBar";
+import SideBar from "@/components/layout/sidebar";
+import { buttonVariants } from "@/components/ui/button";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
-const AppLayout = ({ children }: { children: React.ReactNode }) => {
+import Link from "next/link";
+import { auth } from "@/auth";
+
+const AppLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+
   return (
-    <ResizablePanelGroup orientation="horizontal" className="min-h-dvh w-full rounded-lg border">
-      <ResizablePanel defaultSize="25%">
-        <SideBar />
-      </ResizablePanel>
-      <ResizableHandle />
-      <ResizablePanel defaultSize="75%">
-        <div className="w-full h-full p-2">{children}</div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <SidebarProvider>
+      {session && <SideBar />}
+      <div className="flex min-h-svh flex-1 flex-col">
+        <header
+          className={`flex h-14 items-center border-b border-sidebar-border/70 bg-background/95 px-3 backdrop-blur ${session ? "md:hidden" : ""}`}
+        >
+          {session ? (
+            <SidebarTrigger className="cursor-pointer" />
+          ) : (
+            <Link href="/sign-in" className={`ml-auto ${buttonVariants()}`}>
+              Sign In
+            </Link>
+          )}
+        </header>
+        {children}
+      </div>
+    </SidebarProvider>
   );
 };
 
