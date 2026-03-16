@@ -10,7 +10,7 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <SidebarProvider>
-      {session && <SideBar />}
+      {session?.user && <SideBar user={session.user} />}
       <div className="flex min-h-svh flex-1 flex-col">
         <header
           className={`flex h-14 items-center border-b border-sidebar-border/70 bg-background/95 px-3 backdrop-blur ${session ? "md:hidden" : ""}`}
