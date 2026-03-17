@@ -2,13 +2,13 @@ import extractYouTubeId from "@/lib/utils/extractYoutubeId";
 import startNewChat, { createNewChat } from "@/lib/services/chat.service";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { TOTAL_PROCESSING_STEPS } from "@/constant";
+import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const session = await auth();
-  const { url }: { url: string } = await req.json();
+  const url = req.nextUrl.searchParams.get("url") || "";
 
   const encoder = new TextEncoder();
 
