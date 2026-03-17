@@ -2,18 +2,16 @@ import { CHUNK_DURATION } from "@/constant";
 import { getVideoDetails, VideoDetails } from "youtube-caption-extractor";
 import prisma from "../prisma";
 
+type CallbackArgs = {
+  step: number;
+  message: string;
+  data: Record<string, unknown>;
+};
+
 type NewChatArgs = {
   id: string;
   userId: string;
-  callback: ({
-    step,
-    message,
-    data,
-  }: {
-    step: number;
-    message: string;
-    data: Record<string, unknown>;
-  }) => void;
+  callback: ({ step, message, data }: CallbackArgs) => void;
   errorCallback: (error: string) => void;
 };
 
@@ -28,6 +26,49 @@ type Data = {
   description: string;
   rawSubtitles?: Subtitle[];
   chunkSubtitles?: Subtitle[];
+};
+
+export const createNewChat = async ({
+  userId,
+  videoId,
+  callback,
+}: {
+  userId: string;
+  videoId: string;
+  callback: (args: CallbackArgs) => void;
+}) => {
+  const systemInstruction = await prisma.systemInstruction.findFirst({
+    where: {
+      AND: {
+        language: "HINGLISH",
+        model: "SARVAM_M",
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!systemInstruction) {
+    throw new Error("System instruction not found");
+  }
+
+  callback({ step: 5, message: "Model initialized.", data: {} });
+
+  const chat = await prisma.chat.create({
+    data: {
+      language: "HINGLISH",
+      withTimestamp: true,
+      systemInstructionId: systemInstruction.id,
+      userId,
+      videoId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  callback({ step: 6, message: "Chat initialized.", data: { chatId: chat.id } });
 };
 
 const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs) => {
@@ -118,38 +159,7 @@ const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs
 
     //   TODO: add chunkId in raw subtitles in future
 
-    const systemInstruction = await prisma.systemInstruction.findFirst({
-      where: {
-        AND: {
-          language: "HINGLISH",
-          model: "SARVAM_M",
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!systemInstruction) {
-      throw new Error("System instruction not found");
-    }
-
-    callback({ step: 5, message: "Model initialized.", data: {} });
-
-    const chat = await prisma.chat.create({
-      data: {
-        language: "HINGLISH",
-        withTimestamp: true,
-        systemInstructionId: systemInstruction.id,
-        userId,
-        videoId: dbVideo.id,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    callback({ step: 6, message: "Chat initialized.", data: { chatId: chat.id } });
+    await createNewChat({ userId, videoId: dbVideo.id, callback });
   } catch (error) {
     let errorMessage = "An error occurred while processing the request";
     if (error instanceof Error) {

@@ -1,6 +1,8 @@
 import extractYouTubeId from "@/lib/utils/extractYoutubeId";
-import startNewChat from "@/lib/services/chat.service";
+import startNewChat, { createNewChat } from "@/lib/services/chat.service";
 import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { TOTAL_PROCESSING_STEPS } from "@/constant";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +13,7 @@ export async function GET(req: Request) {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
-    start(controller) {
+    async start(controller) {
       const send = (data: Record<string, unknown>) => {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
       };
@@ -31,12 +33,24 @@ export async function GET(req: Request) {
         return sendError("Invalid YouTube URL");
       }
 
-      startNewChat({
-        id: youtubeId,
-        userId: session.user.id,
-        callback: send,
-        errorCallback: sendError,
+      const existingVideo = await prisma.video.findUnique({
+        where: { id: youtubeId },
       });
+
+      if (existingVideo) {
+        createNewChat({
+          userId: session.user.id,
+          videoId: existingVideo.id,
+          callback: send,
+        });
+      } else {
+        startNewChat({
+          id: youtubeId,
+          userId: session.user.id,
+          callback: send,
+          errorCallback: sendError,
+        });
+      }
 
       // Cleanup on client disconnect
       req.signal.addEventListener("abort", () => {
