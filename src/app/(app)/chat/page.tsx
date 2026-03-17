@@ -7,6 +7,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import extractYouTubeId from "@/lib/utils/extractYoutubeId";
 import axios, { AxiosError } from "axios";
 import { Loader2, Send } from "lucide-react";
 import { redirect, RedirectType } from "next/navigation";
@@ -16,8 +17,9 @@ import { toast } from "sonner";
 function isValidUrl(url: string): boolean {
   try {
     if (!url) return true;
-    const u = new URL(url);
-    return u.protocol === "http:" || u.protocol === "https:";
+    const id = extractYouTubeId(url);
+    if (!id) return false;
+    else return true;
   } catch {
     return false;
   }
