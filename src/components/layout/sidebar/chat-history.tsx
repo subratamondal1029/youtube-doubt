@@ -33,7 +33,7 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
     const updateHistory = async () => {
       const id = pathname.split("/").pop()?.trim();
 
-      if (id === "settings") return;
+      if (id === "settings" || id === "chat") return;
 
       const existingIndex = prevHistory.current.findIndex((chat) => chat.id === id);
       if (existingIndex !== -1) return;
