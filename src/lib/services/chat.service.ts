@@ -9,13 +9,12 @@ type NewChatArgs = {
     step,
     message,
     data,
-    error,
   }: {
     step: number;
     message: string;
     data: Record<string, unknown>;
-    error?: string;
   }) => void;
+  errorCallback: (error: string) => void;
 };
 
 type Subtitle = {
@@ -31,125 +30,133 @@ type Data = {
   chunkSubtitles?: Subtitle[];
 };
 
-const startNewChat = async ({ id, userId, callback }: NewChatArgs) => {
-  callback({ step: 1, message: "Fetching video information...", data: {} });
+const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs) => {
+  try {
+    callback({ step: 1, message: "Fetching video information...", data: {} });
 
-  const videoInfo: VideoDetails = await getVideoDetails({
-    videoID: id,
-    lang: "en",
-  });
+    const videoInfo: VideoDetails = await getVideoDetails({
+      videoID: id,
+      lang: "en",
+    });
 
-  const data: Data = {
-    title: videoInfo.title,
-    description: videoInfo.description,
-  };
+    const data: Data = {
+      title: videoInfo.title,
+      description: videoInfo.description,
+    };
 
-  callback({ step: 2, message: "Video title and description fetched.", data });
+    callback({ step: 2, message: "Video title and description fetched.", data });
 
-  // format subtitle as per requirement
-  const subtitles = videoInfo.subtitles.map((subtitle) => ({
-    start: Math.floor(Number(subtitle.start)),
-    end: Math.floor(Number(subtitle.start) + Number(subtitle.dur)),
-    content: subtitle.text,
-  }));
+    // format subtitle as per requirement
+    const subtitles = videoInfo.subtitles.map((subtitle) => ({
+      start: Math.floor(Number(subtitle.start)),
+      end: Math.floor(Number(subtitle.start) + Number(subtitle.dur)),
+      content: subtitle.text,
+    }));
 
-  data.rawSubtitles = subtitles;
+    data.rawSubtitles = subtitles;
 
-  const lastSub = subtitles[subtitles.length - 1].end;
+    const lastSub = subtitles[subtitles.length - 1].end;
 
-  callback({ step: 3, message: `Subtitles fetched upto ${lastSub}.`, data: {} });
+    callback({ step: 3, message: `Subtitles fetched upto ${lastSub}.`, data: {} });
 
-  // create 40s chunk from raw subtitles
-  const chunkDuration = CHUNK_DURATION;
-  const chunkSubtitles: Subtitle[] = [];
+    // create 40s chunk from raw subtitles
+    const chunkDuration = CHUNK_DURATION;
+    const chunkSubtitles: Subtitle[] = [];
 
-  let currentChunk: Subtitle | null = null;
+    let currentChunk: Subtitle | null = null;
 
-  for (const subtitle of subtitles) {
-    if (!currentChunk) {
-      currentChunk = { ...subtitle };
-    } else if (subtitle.start - currentChunk.start < chunkDuration) {
-      currentChunk.content += " " + subtitle.content;
-      currentChunk.end = subtitle.end;
-    } else {
-      chunkSubtitles.push(currentChunk);
-      currentChunk = { ...subtitle };
+    for (const subtitle of subtitles) {
+      if (!currentChunk) {
+        currentChunk = { ...subtitle };
+      } else if (subtitle.start - currentChunk.start < chunkDuration) {
+        currentChunk.content += " " + subtitle.content;
+        currentChunk.end = subtitle.end;
+      } else {
+        chunkSubtitles.push(currentChunk);
+        currentChunk = { ...subtitle };
+      }
     }
-  }
 
-  if (currentChunk) {
-    chunkSubtitles.push(currentChunk);
-  }
+    if (currentChunk) {
+      chunkSubtitles.push(currentChunk);
+    }
 
-  data.chunkSubtitles = chunkSubtitles;
+    data.chunkSubtitles = chunkSubtitles;
 
-  callback({ step: 4, message: "Subtitles processed.", data: {} });
+    callback({ step: 4, message: "Subtitles processed.", data: {} });
 
-  const dbVideo = await prisma.video.create({
-    data: {
-      title: data.title,
-      remoteId: id,
-      platform: "YOUTUBE",
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  await prisma.rawSubtitle.createMany({
-    data: data.rawSubtitles?.map((subtitle) => ({
-      language: "ENGLISH",
-      start: subtitle.start,
-      end: subtitle.end,
-      content: subtitle.content,
-      videoId: dbVideo.id,
-    })),
-  });
-
-  await prisma.chunkSubtitle.createMany({
-    data: data.chunkSubtitles?.map((subtitle) => ({
-      language: "ENGLISH",
-      start: subtitle.start,
-      end: subtitle.end,
-      content: subtitle.content,
-      videoId: dbVideo.id,
-    })),
-  });
-
-  //   TODO: add chunkId in raw subtitles in future
-
-  const systemInstruction = await prisma.systemInstruction.findFirst({
-    where: {
-      AND: {
-        language: "HINGLISH",
-        model: "SARVAM_M",
+    const dbVideo = await prisma.video.create({
+      data: {
+        title: data.title,
+        remoteId: id,
+        platform: "YOUTUBE",
       },
-    },
-    select: {
-      id: true,
-    },
-  });
+      select: {
+        id: true,
+      },
+    });
 
-  if (!systemInstruction) {
-    throw new Error("System instruction not found");
+    await prisma.rawSubtitle.createMany({
+      data: data.rawSubtitles?.map((subtitle) => ({
+        language: "ENGLISH",
+        start: subtitle.start,
+        end: subtitle.end,
+        content: subtitle.content,
+        videoId: dbVideo.id,
+      })),
+    });
+
+    await prisma.chunkSubtitle.createMany({
+      data: data.chunkSubtitles?.map((subtitle) => ({
+        language: "ENGLISH",
+        start: subtitle.start,
+        end: subtitle.end,
+        content: subtitle.content,
+        videoId: dbVideo.id,
+      })),
+    });
+
+    //   TODO: add chunkId in raw subtitles in future
+
+    const systemInstruction = await prisma.systemInstruction.findFirst({
+      where: {
+        AND: {
+          language: "HINGLISH",
+          model: "SARVAM_M",
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!systemInstruction) {
+      throw new Error("System instruction not found");
+    }
+
+    callback({ step: 5, message: "Model initialized.", data: {} });
+
+    const chat = await prisma.chat.create({
+      data: {
+        language: "HINGLISH",
+        withTimestamp: true,
+        systemInstructionId: systemInstruction.id,
+        userId,
+        videoId: dbVideo.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    callback({ step: 6, message: "Chat initialized.", data: { chatId: chat.id } });
+  } catch (error) {
+    let errorMessage = "An error occurred while processing the request";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    errorCallback(errorMessage);
   }
-
-  callback({ step: 5, message: "Model initialized.", data: {} });
-
-  const chat = await prisma.chat.create({
-    data: {
-      language: "HINGLISH",
-      withTimestamp: true,
-      systemInstructionId: systemInstruction.id,
-      userId,
-      videoId: dbVideo.id,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  callback({ step: 6, message: "Chat initialized.", data: { chatId: chat.id } });
 };
 
 export default startNewChat;
