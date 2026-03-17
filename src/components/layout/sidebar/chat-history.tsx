@@ -39,7 +39,7 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
       if (existingIndex !== -1) return;
 
       // get history and update
-      const { data }: { data: History } = await axios.get(`/api/chat/history/${id}`);
+      const { data }: { data: History } = await axios.get(`/api/chats/history/${id}`);
       const newHistory = [...prevHistory.current, data];
       prevHistory.current = newHistory;
       setHistory(newHistory);
