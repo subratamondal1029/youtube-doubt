@@ -7,30 +7,47 @@ datasource db {
   provider = "postgresql"
 }
 
+enum CHAT_LANGUAGE {
+  HINDI
+  ENGLISH
+  HINGLISH
+}
+
+enum SUBTITLE_LANGUAGE {
+  HINDI
+  ENGLISH
+}
+
+enum PLATFORM {
+  YOUTUBE
+}
+
+enum MESSAGE_ROLE {
+  USER
+  ASSISTANT
+}
+
+enum AI_MODEL {
+  SARVAM_M
+}
+
+// auth.js default schema
 model User {
   id            String    @id @default(uuid())
   name          String?
   email         String    @unique
   emailVerified DateTime?
   image         String?
+  planId        String?
   accounts      Account[]
   sessions      Session[]
   profile       Profile?
+  chats         Chat[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
-}
-
-model Profile {
-  userId      String  @unique
-  personalize String?
-  // add more
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("profiles")
 }
 
 model Account {
@@ -65,4 +82,135 @@ model Session {
   updatedAt DateTime @updatedAt
 
   @@map("sessions")
+}
+
+// auth.js schema ends
+
+model Profile {
+  userId          String        @id
+  personalization String?
+  language        CHAT_LANGUAGE @default(HINGLISH)
+  withTimestamp   Boolean       @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Video {
+  id          String   @id @default(uuid())
+  remoteId    String
+  platform    PLATFORM
+  title       String
+  description String?
+
+  rawSubtitles   RawSubtitle[]
+  chunkSubtitles ChunkSubtitle[]
+  chats          Chat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([remoteId, platform])
+  @@map("videos")
+}
+
+model RawSubtitle {
+  id       String            @id @default(uuid())
+  videoId  String
+  chunkId  String?
+  language SUBTITLE_LANGUAGE
+
+  start   Int
+  end     Int
+  content String
+
+  video Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  chunk ChunkSubtitle? @relation(fields: [chunkId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([videoId])
+  @@index([chunkId])
+  @@index([start, end])
+  @@map("raw_subtitles")
+}
+
+model ChunkSubtitle {
+  id       String            @id @default(uuid())
+  videoId  String
+  language SUBTITLE_LANGUAGE
+
+  start   Int
+  end     Int
+  content String
+
+  rawSubtitles RawSubtitle[]
+  video        Video         @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([videoId])
+  @@index([start, end])
+  @@map("chunk_subtitles")
+}
+
+model Chat {
+  id                  String         @id @default(uuid())
+  userId              String?
+  videoId             String?
+  model               AI_MODEL       @default(SARVAM_M)
+  systemInstructionId String
+  language            CHAT_LANGUAGE?
+  withTimestamp       Boolean?
+
+  messages Message[]
+
+  video             Video?            @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  user              User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  systemInstruction SystemInstruction @relation(fields: [systemInstructionId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([videoId])
+  @@map("chats")
+}
+
+model Message {
+  id            String         @id @default(uuid())
+  role          MESSAGE_ROLE
+  chatId        String
+  content       String
+  language      CHAT_LANGUAGE?
+  withTimestamp Boolean?
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([chatId])
+  @@map("messages")
+}
+
+model SystemInstruction {
+  id       String        @id @default(uuid())
+  language CHAT_LANGUAGE @default(ENGLISH)
+  model    AI_MODEL      @default(SARVAM_M)
+  content  String
+
+  chats Chat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([model, language])
+  @@map("system_instructions")
 }
