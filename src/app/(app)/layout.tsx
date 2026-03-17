@@ -23,7 +23,7 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
             </Link>
           )}
         </header>
-        {children}
+        <div className="pl-4">{children}</div>
       </div>
     </SidebarProvider>
   );
