@@ -12,7 +12,16 @@ import extractYouTubeId from "@/lib/utils/extractYoutubeId";
 import { Loader2, Send } from "lucide-react";
 import { redirect, RedirectType } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+
+type Status = "open" | "success" | "error" | "loading" | "closed";
+
+const statusStyles: Record<Status, string> = {
+  loading: "bg-yellow-500/20 text-yellow-500",
+  success: "bg-green-500/20 text-green-500",
+  open: "bg-blue-500/20 text-blue-500",
+  error: "bg-red-500/20 text-red-500",
+  closed: "bg-gray-500/20 text-gray-500",
+};
 
 type SseSuccessMessage = {
   step: number;
@@ -43,7 +52,8 @@ const NewChat = () => {
   const [isValid, setIsValid] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const [status, setStatus] = useState<"open" | "closed" | "loading">("loading");
+  const [status, setStatus] = useState<Status>("closed");
+  const [sseError, setSseError] = useState<string>("");
   const [sseResponses, setSseResponses] = useState<SseSuccessMessage[]>([]);
 
   const submitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -51,27 +61,31 @@ const NewChat = () => {
 
     try {
       setIsSubmitting(true);
+      setSseError("");
+      setSseResponses([]);
 
       const chatId = await new Promise((resolve, reject) => {
         const es = new EventSource("/api/chats/new?url=" + encodeURIComponent(url));
 
-        es.onopen = () => setStatus("open");
+        es.onopen = () => {
+          setStatus("open");
+        };
 
         es.onmessage = (e: MessageEvent) => {
           const data: SseMessage = JSON.parse(e.data);
 
           if ("error" in data) {
-            reject(new Error(data.message));
+            reject(new Error(data.error));
           } else {
             setSseResponses((prev) => [...prev, data]);
             if (data.step === TOTAL_PROCESSING_STEPS) {
+              setStatus("success");
               resolve(data.data.chatId);
             }
           }
         };
 
         es.onerror = () => {
-          setStatus("closed");
           es.close();
           reject(new Error("Failed to establish connection with server"));
         };
@@ -79,6 +93,8 @@ const NewChat = () => {
 
       redirect(`/chat/${chatId}`, RedirectType.replace);
     } catch (error) {
+      console.error(error);
+      setStatus("error");
       let errorMessage: string;
       if (error instanceof Error) {
         errorMessage = error.message || "Failed to start chat";
@@ -86,17 +102,9 @@ const NewChat = () => {
         errorMessage = "Failed to start chat";
       }
 
-      toast.error(errorMessage, {
-        style: {
-          background: "red",
-          color: "white",
-        },
-        duration: 5000,
-        position: "bottom-left",
-      });
+      setSseError(errorMessage);
     } finally {
       setIsSubmitting(false);
-      setStatus("closed");
     }
   };
 
@@ -106,9 +114,9 @@ const NewChat = () => {
 
   return (
     <div
-      className={`w-full max-w-3/4 h-full mx-auto flex flex-col ${isSubmitting ? "justify-end" : "justify-center"} items-center gap-6`}
+      className={`w-full max-w-3/4 h-full mx-auto flex flex-col ${status !== "closed" ? "justify-end" : "justify-center"} items-center gap-6`}
     >
-      {isSubmitting && (
+      {status !== "closed" && (
         <div className="w-full space-y-3 mb-8">
           {sseResponses.map((response, index) => (
             <div
@@ -119,15 +127,19 @@ const NewChat = () => {
               <p className="text-base font-medium mt-1">{response.message}</p>
               {response.step === 2 && (
                 <p className="text-xs text-muted-foreground mt-2">
-                  Processing for {response.data?.title as string}
+                  {response.data?.title as string}
                 </p>
               )}
             </div>
           ))}
+          {sseError && (
+            <div className="w-full p-4 bg-destructive/20 rounded-lg border border-destructive/20">
+              <p className="text-sm font-semibold text-destructive">Error</p>
+              <p className="text-base font-medium mt-1">{sseError}</p>
+            </div>
+          )}
           <div className="flex items-center gap-2">
-            <div
-              className={`px-3 py-1 rounded-full text-xs font-medium ${status === "open" ? "bg-green-500/20 text-green-500" : "bg-gray-500/20 text-gray-500"}`}
-            >
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
               {status}
             </div>
           </div>

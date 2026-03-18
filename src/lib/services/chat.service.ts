@@ -1,6 +1,7 @@
 import { CHUNK_DURATION } from "@/constant";
 import { getVideoDetails, VideoDetails } from "youtube-caption-extractor";
 import prisma from "../prisma";
+import { ApiError } from "../utils/ApiError";
 
 type CallbackArgs = {
   step: number;
@@ -50,7 +51,7 @@ export const createNewChat = async ({
   });
 
   if (!systemInstruction) {
-    throw new Error("System instruction not found");
+    throw new ApiError(500, "System instruction not found");
   }
 
   callback({ step: 5, message: "Model initialized.", data: {} });
@@ -86,6 +87,10 @@ const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs
     };
 
     callback({ step: 2, message: "Video title and description fetched.", data });
+
+    if (videoInfo.subtitles.length === 0) {
+      throw new ApiError(400, "No subtitles found for the video");
+    }
 
     // format subtitle as per requirement
     const subtitles = videoInfo.subtitles.map((subtitle) => ({
@@ -161,8 +166,9 @@ const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs
 
     await createNewChat({ userId, videoId: dbVideo.id, callback });
   } catch (error) {
+    console.error("Error processing video:", error);
     let errorMessage = "An error occurred while processing the request";
-    if (error instanceof Error) {
+    if (error instanceof ApiError) {
       errorMessage = error.message;
     }
     errorCallback(errorMessage);
