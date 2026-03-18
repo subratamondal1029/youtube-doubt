@@ -1,32 +1,93 @@
 import { CHUNK_DURATION } from "@/constant";
-import { getVideoDetails, VideoDetails } from "youtube-caption-extractor";
+import { fetchTranscript, type TranscriptResponse } from "youtube-transcript-plus";
 import prisma from "../prisma";
 import { ApiError } from "../utils/ApiError";
+import cleanContent from "../utils/cleanContent";
+import axios from "axios";
 
-type CallbackArgs = {
-  step: number;
-  message: string;
-  data: Record<string, unknown>;
-};
+import { Subtitle, NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
 
-type NewChatArgs = {
-  id: string;
-  userId: string;
-  callback: ({ step, message, data }: CallbackArgs) => void;
-  errorCallback: (error: string) => void;
-};
+/*
+Tasks
+TODO: make language dynamic
+TODO: make platform dynamic
+TODO: add chunkId in raw subtitles
+*/
 
-type Subtitle = {
-  start: number;
-  end: number;
-  content: string;
-};
-
-type Data = {
+interface VideoInfo {
   title: string;
   description: string;
+}
+
+interface Data extends VideoInfo {
   rawSubtitles?: Subtitle[];
   chunkSubtitles?: Subtitle[];
+}
+
+const getVideoDetails = async (videoId: string): Promise<VideoInfo> => {
+  try {
+    const response = await axios.get(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`
+    );
+
+    const snippet = response.data.items[0].snippet;
+
+    return {
+      title: snippet.title,
+      description: snippet.description,
+    };
+  } catch (error) {
+    console.error("Error fetching video details:", error);
+    throw new ApiError(500, "Failed to fetch video details");
+  }
+};
+
+const getSubtitles = async (
+  videoId: string,
+  lang: string = "en"
+): Promise<TranscriptResponse[]> => {
+  try {
+    const response = await fetchTranscript(videoId, {
+      lang,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching subtitles:", error);
+    throw new ApiError(500, "Failed to fetch subtitles");
+  }
+};
+
+const formatSubtitles = (
+  subtitles: TranscriptResponse[]
+): { rawSubtitles: Subtitle[]; chunkSubtitles: Subtitle[] } => {
+  const rawSubtitles = subtitles.map((t) => ({
+    start: t.offset,
+    end: parseFloat((t.offset + t.duration).toFixed(2)),
+    content: cleanContent(t.text),
+  }));
+
+  const chunkSubtitles: Subtitle[] = [];
+
+  let currentChunk: Subtitle | null = null;
+
+  for (const subtitle of rawSubtitles) {
+    if (!currentChunk) {
+      currentChunk = { ...subtitle };
+    } else if (subtitle.start - currentChunk.start < CHUNK_DURATION) {
+      currentChunk.content += " " + subtitle.content;
+      currentChunk.end = subtitle.end;
+    } else {
+      chunkSubtitles.push(currentChunk);
+      currentChunk = { ...subtitle };
+    }
+  }
+
+  if (currentChunk) {
+    chunkSubtitles.push(currentChunk);
+  }
+
+  return { rawSubtitles, chunkSubtitles };
 };
 
 export const createNewChat = async ({
@@ -36,7 +97,7 @@ export const createNewChat = async ({
 }: {
   userId: string;
   videoId: string;
-  callback: (args: CallbackArgs) => void;
+  callback: (args: NewChatProcessResponse) => void;
 }) => {
   const systemInstruction = await prisma.systemInstruction.findFirst({
     where: {
@@ -54,7 +115,7 @@ export const createNewChat = async ({
     throw new ApiError(500, "System instruction not found");
   }
 
-  callback({ step: 5, message: "Model initialized.", data: {} });
+  callback({ step: NewChatProcesses.INITIALIZE_CHAT, message: "Model initialized.", data: {} });
 
   const chat = await prisma.chat.create({
     data: {
@@ -69,67 +130,62 @@ export const createNewChat = async ({
     },
   });
 
-  callback({ step: 6, message: "Chat initialized.", data: { chatId: chat.id } });
+  callback({
+    step: NewChatProcesses.COMPLETE,
+    message: "Chat initialized.",
+    data: { chatId: chat.id },
+  });
 };
 
-const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs) => {
+const startNewChat = async ({
+  id,
+  userId,
+  callback,
+}: {
+  id: string;
+  userId: string;
+  callback: (args: NewChatProcessResponse) => void;
+}) => {
   try {
-    callback({ step: 1, message: "Fetching video information...", data: {} });
-
-    const videoInfo: VideoDetails = await getVideoDetails({
-      videoID: id,
-      lang: "en",
+    callback({
+      step: NewChatProcesses.INITIALIZING,
+      message: "Fetching video information...",
+      data: {},
     });
 
-    const data: Data = {
-      title: videoInfo.title,
-      description: videoInfo.description,
-    };
+    const videoInfo = await getVideoDetails(id);
 
-    callback({ step: 2, message: "Video title and description fetched.", data });
+    const data: Data = { ...videoInfo };
 
-    if (videoInfo.subtitles.length === 0) {
-      throw new ApiError(400, "No subtitles found for the video");
-    }
+    callback({
+      step: NewChatProcesses.FETCHED_VIDEO_DETAILS,
+      message: "Video title and description fetched.",
+      data,
+    });
 
     // format subtitle as per requirement
-    const subtitles = videoInfo.subtitles.map((subtitle) => ({
-      start: Math.floor(Number(subtitle.start)),
-      end: Math.floor(Number(subtitle.start) + Number(subtitle.dur)),
-      content: subtitle.text,
-    }));
+    const subtitleResponse: TranscriptResponse[] = await getSubtitles(id);
 
-    data.rawSubtitles = subtitles;
+    const lastSub = subtitleResponse[subtitleResponse.length - 1];
+    const lastSubEnd = lastSub.offset + lastSub.duration;
 
-    const lastSub = subtitles[subtitles.length - 1].end;
+    callback({
+      step: NewChatProcesses.FETCHED_SUBTITLES,
+      message: `Subtitles fetched upto ${lastSubEnd}.`,
+      data: { length: lastSubEnd },
+    });
 
-    callback({ step: 3, message: `Subtitles fetched upto ${lastSub}.`, data: {} });
+    // format subtitles
+    const { rawSubtitles, chunkSubtitles } = formatSubtitles(subtitleResponse);
 
-    // create 40s chunk from raw subtitles
-    const chunkDuration = CHUNK_DURATION;
-    const chunkSubtitles: Subtitle[] = [];
-
-    let currentChunk: Subtitle | null = null;
-
-    for (const subtitle of subtitles) {
-      if (!currentChunk) {
-        currentChunk = { ...subtitle };
-      } else if (subtitle.start - currentChunk.start < chunkDuration) {
-        currentChunk.content += " " + subtitle.content;
-        currentChunk.end = subtitle.end;
-      } else {
-        chunkSubtitles.push(currentChunk);
-        currentChunk = { ...subtitle };
-      }
-    }
-
-    if (currentChunk) {
-      chunkSubtitles.push(currentChunk);
-    }
-
+    data.rawSubtitles = rawSubtitles;
     data.chunkSubtitles = chunkSubtitles;
 
-    callback({ step: 4, message: "Subtitles processed.", data: {} });
+    callback({
+      step: NewChatProcesses.PROCESSED_SUBTITLES,
+      message: "Subtitles processed.",
+      data: {},
+    });
 
     const dbVideo = await prisma.video.create({
       data: {
@@ -162,8 +218,6 @@ const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs
       })),
     });
 
-    //   TODO: add chunkId in raw subtitles in future
-
     await createNewChat({ userId, videoId: dbVideo.id, callback });
   } catch (error) {
     console.error("Error processing video:", error);
@@ -171,7 +225,7 @@ const startNewChat = async ({ id, userId, callback, errorCallback }: NewChatArgs
     if (error instanceof ApiError) {
       errorMessage = error.message;
     }
-    errorCallback(errorMessage);
+    callback({ step: NewChatProcesses.ERROR, error: errorMessage });
   }
 };
 
