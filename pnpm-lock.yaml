@@ -32,6 +32,9 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
+      html-entities:
+        specifier: ^2.6.0
+        version: 2.6.0
       lucide-react:
         specifier: ^0.577.0
         version: 0.577.0(react@19.2.3)
@@ -74,6 +77,9 @@ importers:
       youtube-caption-extractor:
         specifier: ^1.9.1
         version: 1.9.1
+      youtube-transcript-plus:
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.4.3
@@ -2887,6 +2893,9 @@ packages:
     resolution: {integrity: sha512-jq9l1DM0zVIvsm3lv9Nw9nlJnMNPOcAtsbsgiUhWcFzPE99Gvo6yRTlszSLLYacMeQ6quHD6hMfId8crVHvexw==}
     engines: {node: '>=16.9.0'}
 
+  html-entities@2.6.0:
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
     engines: {node: '>= 0.8'}
@@ -4534,6 +4543,10 @@ packages:
   youtube-caption-extractor@1.9.1:
     resolution: {integrity: sha512-KK1OparV3kpIIRkMgLRsQPE73Tu0hYy0CDKcWkF8O3eikyib0IqVjoDNDiGt0KhGbg0/jhh+VUOCcWn/G6nvAw==}
     engines: {node: '>=14.0.0'}
+
+  youtube-transcript-plus@1.2.0:
+    resolution: {integrity: sha512-SRjVft8V+vUulMKgakgfzC+pnFLSy4tolX7xGnSvp9juUNocikMFmUx5GlhzLDILzxYrijcYtmNqz0qyklnPmA==}
+    engines: {node: '>=18.0.0'}
 
   zeptomatch@2.1.0:
     resolution: {integrity: sha512-KiGErG2J0G82LSpniV0CtIzjlJ10E04j02VOudJsPyPwNZgGnRKQy7I1R7GMyg/QswnE4l7ohSGrQbQbjXPPDA==}
@@ -7552,6 +7565,8 @@ snapshots:
 
   hono@4.12.7: {}
 
+  html-entities@2.6.0: {}
+
   http-errors@2.0.1:
     dependencies:
       depd: 2.0.0
@@ -9298,6 +9313,8 @@ snapshots:
     dependencies:
       he: 1.2.0
       striptags: 3.2.0
+
+  youtube-transcript-plus@1.2.0: {}
 
   zeptomatch@2.1.0:
     dependencies:
