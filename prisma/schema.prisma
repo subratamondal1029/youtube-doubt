@@ -124,8 +124,8 @@ model RawSubtitle {
   chunkId  String?
   language SUBTITLE_LANGUAGE
 
-  start   Int
-  end     Int
+  start   Float
+  end     Float
   content String
 
   video Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
@@ -145,8 +145,8 @@ model ChunkSubtitle {
   videoId  String
   language SUBTITLE_LANGUAGE
 
-  start   Int
-  end     Int
+  start   Float
+  end     Float
   content String
 
   rawSubtitles RawSubtitle[]
