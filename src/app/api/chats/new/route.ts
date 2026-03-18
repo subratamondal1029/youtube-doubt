@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";
 
+import { NewChatProcesses, type NewChatProcessResponse } from "@/types/chat.types";
+
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
@@ -14,23 +16,24 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (data: Record<string, unknown>) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
-      };
-
-      const sendError = (error: string) => {
-        send({ message: "video processing failed", data: null, error });
-        controller.close();
+      const send = (response: NewChatProcessResponse) => {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(response)}\n\n`));
+        if (
+          response.step === NewChatProcesses.ERROR ||
+          response.step === NewChatProcesses.COMPLETE
+        ) {
+          controller.close();
+        }
       };
 
       if (!session || !session.user?.id) {
-        return sendError("Unauthorized");
+        return send({ step: NewChatProcesses.ERROR, error: "Unauthorized" });
       }
 
       const youtubeId = extractYouTubeId(url);
 
       if (!youtubeId) {
-        return sendError("Invalid YouTube URL");
+        return send({ step: NewChatProcesses.ERROR, error: "Invalid YouTube URL" });
       }
 
       const existingVideo = await prisma.video.findUnique({
@@ -48,7 +51,6 @@ export async function GET(req: NextRequest) {
           id: youtubeId,
           userId: session.user.id,
           callback: send,
-          errorCallback: sendError,
         });
       }
 
