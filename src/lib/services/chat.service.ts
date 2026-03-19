@@ -190,6 +190,7 @@ const startNewChat = async ({
     const dbVideo = await prisma.video.create({
       data: {
         title: data.title,
+        description: data.description,
         remoteId: id,
         platform: "YOUTUBE",
       },
