@@ -14,6 +14,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { ApiSuccess } from "@/lib/utils/ApiSuccess";
 
 type History = {
   id: string;
@@ -26,6 +27,7 @@ type ChatHistoryProps = {
 
 const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
   const pathname = usePathname();
+  const [chatId, setChatId] = useState<string>("");
   const [history, setHistory] = useState(defaultHistory);
   const prevHistory = useRef(history);
 
@@ -33,14 +35,16 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
     const updateHistory = async () => {
       const id = pathname.split("/").pop()?.trim();
 
-      if (id === "settings" || id === "chat") return;
+      if (id === "settings" || id === "chat" || id === "" || !id) return;
+
+      setChatId(id);
 
       const existingIndex = prevHistory.current.findIndex((chat) => chat.id === id);
       if (existingIndex !== -1) return;
 
       // get history and update
-      const { data }: { data: History } = await axios.get(`/api/chats/history/${id}`);
-      const newHistory = [...prevHistory.current, data];
+      const { data }: { data: ApiSuccess<History> } = await axios.get(`/api/chats/history/${id}`);
+      const newHistory = [...prevHistory.current, data.data];
       prevHistory.current = newHistory;
       setHistory(newHistory);
     };
@@ -66,7 +70,13 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
             <SidebarMenu>
               {history.map((chat) => (
                 <SidebarMenuItem key={chat.id} title={chat.title}>
-                  <SidebarMenuButton asChild tooltip={chat.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={chat.title}
+                    className={
+                      chatId === chat.id ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                    }
+                  >
                     <Link href={`/chat/${chat.id}`}>
                       <MessageCircle className="h-4 w-4 shrink-0" />
                       <span className="truncate">{chat.title}</span>
