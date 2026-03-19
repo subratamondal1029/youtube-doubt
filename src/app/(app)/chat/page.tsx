@@ -7,34 +7,30 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { TOTAL_PROCESSING_STEPS } from "@/constant";
 import extractYouTubeId from "@/lib/utils/extractYoutubeId";
 import { Loader2, Send } from "lucide-react";
 import { redirect, RedirectType } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Status = "open" | "success" | "error" | "loading" | "closed";
+import { NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
+import { Progress } from "@/components/ui/progress";
+import { ApiError } from "@/lib/utils/ApiError";
+import { toast } from "sonner";
+
+type Status = "open" | "success" | "error" | "processing" | "closed";
 
 const statusStyles: Record<Status, string> = {
-  loading: "bg-yellow-500/20 text-yellow-500",
+  processing: "bg-yellow-500/20 text-yellow-500",
   success: "bg-green-500/20 text-green-500",
   open: "bg-blue-500/20 text-blue-500",
   error: "bg-red-500/20 text-red-500",
   closed: "bg-gray-500/20 text-gray-500",
 };
 
-type SseSuccessMessage = {
-  step: number;
-  message: string;
-  data: Record<string, unknown>;
+const processStyles: Partial<Record<NewChatProcesses, string>> = {
+  [NewChatProcesses.ERROR]: "bg-destructive/20 border-destructive/20",
+  [NewChatProcesses.COMPLETE]: "bg-green-500/20 border-green-500/20",
 };
-
-type SseErrorMessage = {
-  error: string;
-  message: string;
-};
-
-type SseMessage = SseSuccessMessage | SseErrorMessage;
 
 function isValidUrl(url: string): boolean {
   try {
@@ -53,18 +49,24 @@ const NewChat = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [status, setStatus] = useState<Status>("closed");
-  const [sseError, setSseError] = useState<string>("");
-  const [sseResponses, setSseResponses] = useState<SseSuccessMessage[]>([]);
+  const [processResponses, setProcessResponses] = useState<NewChatProcessResponse[]>([]);
+
+  const [progress, setProgress] = useState<number>(0);
 
   const submitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (url.trim() === "") {
+      setIsValid(false);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      setSseError("");
-      setSseResponses([]);
+      setProcessResponses([]);
+      setProgress(0);
 
-      const chatId = await new Promise((resolve, reject) => {
+      const chatId: string = await new Promise((resolve, reject) => {
         const es = new EventSource("/api/chats/new?url=" + encodeURIComponent(url));
 
         es.onopen = () => {
@@ -72,16 +74,18 @@ const NewChat = () => {
         };
 
         es.onmessage = (e: MessageEvent) => {
-          const data: SseMessage = JSON.parse(e.data);
+          const data: NewChatProcessResponse = JSON.parse(e.data);
 
-          if ("error" in data) {
-            reject(new Error(data.error));
+          setProcessResponses((prev) => [...prev, data]);
+          setProgress(Math.floor((data.step / NewChatProcesses.COMPLETE) * 100));
+
+          if (data.step === NewChatProcesses.COMPLETE) {
+            setStatus("success");
+            resolve(data.data.chatId);
+          } else if (data.step === NewChatProcesses.ERROR) {
+            reject(new ApiError(0, data.error));
           } else {
-            setSseResponses((prev) => [...prev, data]);
-            if (data.step === TOTAL_PROCESSING_STEPS) {
-              setStatus("success");
-              resolve(data.data.chatId);
-            }
+            setStatus("processing");
           }
         };
 
@@ -91,18 +95,23 @@ const NewChat = () => {
         };
       });
 
-      redirect(`/chat/${chatId}`, RedirectType.replace);
+      setTimeout(() => {
+        redirect(`/chat/${chatId}`, RedirectType.replace);
+      }, 2 * 1000);
     } catch (error) {
       console.error(error);
-      setStatus("error");
-      let errorMessage: string;
-      if (error instanceof Error) {
-        errorMessage = error.message || "Failed to start chat";
-      } else {
-        errorMessage = "Failed to start chat";
-      }
 
-      setSseError(errorMessage);
+      if (!(error instanceof ApiError)) {
+        // show toast message
+        toast.error("An unexpected error occurred", {
+          duration: 10 * 1000,
+          style: {
+            background: "red",
+            color: "white",
+          },
+          position: "bottom-left",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -118,26 +127,27 @@ const NewChat = () => {
     >
       {status !== "closed" && (
         <div className="w-full space-y-3 mb-8">
-          {sseResponses.map((response, index) => (
+          {processResponses.map((process, index) => (
             <div
-              key={response.step || index + TOTAL_PROCESSING_STEPS}
-              className="w-full p-4 bg-muted/50 rounded-lg border border-muted-foreground/20"
+              key={process.step || index + NewChatProcesses.COMPLETE}
+              className={`w-full p-4 bg-muted/50 rounded-lg border border-muted-foreground/20 ${processStyles[process.step] || ""}`}
             >
-              <p className="text-sm font-semibold text-muted-foreground">Step {response.step}</p>
-              <p className="text-base font-medium mt-1">{response.message}</p>
-              {response.step === 2 && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {response.data?.title as string}
-                </p>
+              {process.step !== NewChatProcesses.ERROR ? (
+                <p className="text-sm font-semibold text-muted-foreground">Step {process.step}</p>
+              ) : (
+                <p className="text-sm font-semibold text-destructive">Error</p>
+              )}
+              <p className="text-base font-medium mt-1">
+                {process.step === NewChatProcesses.ERROR ? process.error : process.message}
+              </p>
+              {process.step === NewChatProcesses.FETCHED_VIDEO_DETAILS && (
+                <p className="text-xs text-muted-foreground mt-2">{process.data.title}</p>
               )}
             </div>
           ))}
-          {sseError && (
-            <div className="w-full p-4 bg-destructive/20 rounded-lg border border-destructive/20">
-              <p className="text-sm font-semibold text-destructive">Error</p>
-              <p className="text-base font-medium mt-1">{sseError}</p>
-            </div>
-          )}
+
+          <Progress value={progress} className="mt-6" />
+
           <div className="flex items-center gap-2">
             <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
               {status}
