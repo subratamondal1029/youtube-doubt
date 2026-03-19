@@ -10,7 +10,7 @@ export const GET = async () => {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(new ApiError(401, "Unauthorized"));
+      return NextResponse.json(new ApiError(401, "Unauthorized"), { status: 401 });
     }
 
     const response = await getUserHistory(session.user.id);
@@ -18,6 +18,6 @@ export const GET = async () => {
     return NextResponse.json(new ApiSuccess(200, "Chat history fetched successfully", response));
   } catch (error) {
     console.error("error in fetching user's chat history:", error);
-    return NextResponse.json(new ApiError(500, "Internal server error"));
+    return NextResponse.json(new ApiError(500, "Internal server error"), { status: 500 });
   }
 };
