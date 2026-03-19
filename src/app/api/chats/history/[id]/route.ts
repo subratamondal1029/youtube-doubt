@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
-import { getHistoryInfo } from "@/lib/repositories/history.repo";
-import { ApiError } from "@/lib/utils/ApiError";
-import { ApiSuccess } from "@/lib/utils/ApiSuccess";
+import { getHistoryInfo } from "@/repositories/history.repo";
+import { ApiError } from "@/utils/ApiError";
+import { ApiSuccess } from "@/utils/ApiSuccess";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
@@ -17,6 +17,6 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json(new ApiSuccess(200, "Fetched history info", data));
   } catch (error) {
     console.error("Error fetching chat history:", error);
-    return NextResponse.json(new ApiError(500, "Failed to fetch chat history"));
+    return NextResponse.json(new ApiError(500, "Failed to fetch chat history"), { status: 500 });
   }
 };

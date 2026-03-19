@@ -1,8 +1,8 @@
 import { CHUNK_DURATION } from "@/constant";
 import { fetchTranscript, type TranscriptResponse } from "youtube-transcript-plus";
-import prisma from "../prisma";
-import { ApiError } from "../utils/ApiError";
-import cleanContent from "../utils/cleanContent";
+import prisma from "@/lib/prisma";
+import { ApiError } from "@/utils/ApiError";
+import cleanContent from "@/utils/cleanContent";
 import axios from "axios";
 
 import { Subtitle, NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";

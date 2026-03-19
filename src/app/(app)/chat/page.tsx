@@ -7,14 +7,14 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import extractYouTubeId from "@/lib/utils/extractYoutubeId";
+import extractYouTubeId from "@/utils/extractYoutubeId";
 import { Loader2, Send } from "lucide-react";
 import { redirect, RedirectType } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
 import { Progress } from "@/components/ui/progress";
-import { ApiError } from "@/lib/utils/ApiError";
+import { ApiError } from "@/utils/ApiError";
 import { toast } from "sonner";
 
 type Status = "open" | "success" | "error" | "processing" | "closed";

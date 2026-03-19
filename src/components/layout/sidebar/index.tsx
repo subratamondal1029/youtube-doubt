@@ -19,7 +19,7 @@ import AvatarDropdown from "@/components/avatar-dropdown";
 import SideBarHeaderShortcuts from "@/components/layout/sidebar/sidebar-header-shortcut";
 import type { User } from "next-auth";
 import SendToast from "@/components/send-toast";
-import { getUserHistory } from "@/lib/repositories/history.repo";
+import { getUserHistory } from "@/repositories/history.repo";
 import { auth } from "@/auth";
 
 const getHistory = async (userId?: string) => {
@@ -27,7 +27,7 @@ const getHistory = async (userId?: string) => {
 
   try {
     // make db call instead of static data
-    return getUserHistory(userId);
+    return await getUserHistory(userId);
   } catch (error) {
     throw new Error((error as Error).message || "Failed to fetch chat history");
   }

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
-import { getUserHistory } from "@/lib/repositories/history.repo";
-import { ApiError } from "@/lib/utils/ApiError";
-import { ApiSuccess } from "@/lib/utils/ApiSuccess";
+import { getUserHistory } from "@/repositories/history.repo";
+import { ApiError } from "@/utils/ApiError";
+import { ApiSuccess } from "@/utils/ApiSuccess";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
@@ -13,7 +13,7 @@ export const GET = async () => {
       return NextResponse.json(new ApiError(401, "Unauthorized"));
     }
 
-    const response = getUserHistory(session.user.id);
+    const response = await getUserHistory(session.user.id);
 
     return NextResponse.json(new ApiSuccess(200, "Chat history fetched successfully", response));
   } catch (error) {

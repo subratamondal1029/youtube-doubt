@@ -14,7 +14,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { ApiSuccess } from "@/lib/utils/ApiSuccess";
+import { ApiSuccess } from "@/utils/ApiSuccess";
 
 type History = {
   id: string;

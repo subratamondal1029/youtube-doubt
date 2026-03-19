@@ -1,5 +1,5 @@
-import extractYouTubeId from "@/lib/utils/extractYoutubeId";
-import startNewChat, { createNewChat } from "@/lib/services/chat.service";
+import extractYouTubeId from "@/utils/extractYoutubeId";
+import startNewChat, { createNewChat } from "@/services/chat.service";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NextRequest } from "next/server";
