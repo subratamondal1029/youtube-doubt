@@ -8,7 +8,7 @@ export const GET = async (req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json(new ApiError(401, "Unauthorized"));
+      return NextResponse.json(new ApiError(401, "Unauthorized"), { status: 401 });
     }
 
     const id = (await params).id;
