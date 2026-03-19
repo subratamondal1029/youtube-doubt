@@ -167,7 +167,7 @@ const startNewChat = async ({
     const subtitleResponse: TranscriptResponse[] = await getSubtitles(id);
 
     const lastSub = subtitleResponse[subtitleResponse.length - 1];
-    const lastSubEnd = lastSub.offset + lastSub.duration;
+    const lastSubEnd = Math.floor(lastSub.offset + lastSub.duration);
 
     callback({
       step: NewChatProcesses.FETCHED_SUBTITLES,
