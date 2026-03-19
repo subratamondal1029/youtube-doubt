@@ -3,7 +3,7 @@
 import Logo from "@/components/Logo";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CirclePlus, SidebarOpen } from "lucide-react";
+import { CirclePlus, Sidebar } from "lucide-react";
 import Link from "next/link";
 
 const SideBarHeaderShortcut = () => {
@@ -19,9 +19,9 @@ const SideBarHeaderShortcut = () => {
       <Tooltip>
         <TooltipTrigger
           onClick={() => setOpen(true)}
-          className="h-9 w-9 flex justify-center items-center hover:bg-white/10 rounded-lg"
+          className=" h-9 w-9 flex justify-center items-center hover:bg-white/10 rounded-lg"
         >
-          <SidebarOpen className="h-4 w-4 cursor-pointer" />
+          <Sidebar className="h-4 w-4 cursor-e-resize" />
         </TooltipTrigger>
         <TooltipContent side="right">Toggle Sidebar</TooltipContent>
       </Tooltip>

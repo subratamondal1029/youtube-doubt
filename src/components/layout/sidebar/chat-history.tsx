@@ -31,6 +31,7 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
   const [history, setHistory] = useState(defaultHistory);
   const prevHistory = useRef(history);
 
+  //TODO: implement context api or redux
   useEffect(() => {
     const updateHistory = async () => {
       setChatId("");

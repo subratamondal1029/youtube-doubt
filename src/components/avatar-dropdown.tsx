@@ -20,8 +20,8 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { ToggleLeft, ToggleRight, User2 } from "lucide-react";
 import { User } from "next-auth";
 import { signOut } from "next-auth/react";
-import Link from "next/link";
 import { useState } from "react";
+import { redirect } from "next/navigation";
 
 type AvatarProps = {
   user: User;
@@ -30,6 +30,7 @@ type AvatarProps = {
 const availableLanguages: readonly string[] = ["ENGLISH", "HINDI", "HINGLISH"];
 
 const AvatarDropdown = ({ user }: AvatarProps) => {
+  //TODO: temporary for now use context api/redux later
   const [language, setLanguage] = useState<(typeof availableLanguages)[number]>("ENGLISH");
   const [includeTimestamps, setIncludeTimestamps] = useState<boolean>(true);
 
@@ -81,9 +82,7 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
             <button>{includeTimestamps ? <ToggleRight size="200px" /> : <ToggleLeft />}</button>
           </DropdownMenuItem>
           {/* settings link */}
-          <DropdownMenuItem>
-            <Link href="/chat/settings">Settings</Link>
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => redirect("/chat/settings")}>Settings</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {/* logout button */}
