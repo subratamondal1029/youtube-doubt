@@ -34,7 +34,7 @@ const getVideoDetails = async (videoId: string): Promise<VideoInfo> => {
 
     return {
       title: snippet.title,
-      description: snippet.description,
+      description: cleanContent(snippet.description),
     };
   } catch (error) {
     console.error("Error fetching video details:", error);
