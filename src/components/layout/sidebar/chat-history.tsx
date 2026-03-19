@@ -33,6 +33,7 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
 
   useEffect(() => {
     const updateHistory = async () => {
+      setChatId("");
       const id = pathname.split("/").pop()?.trim();
 
       if (id === "settings" || id === "chat" || id === "" || !id) return;
