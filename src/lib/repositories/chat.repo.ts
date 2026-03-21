@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { MESSAGE_ROLE } from "../../../generated/prisma/enums";
 
-export const getChatInfo = async (chatId: string) => {
+const getChatInfo = async (chatId: string) => {
   try {
     if (!chatId) {
       throw new ApiError(400, "Invalid chat ID");
@@ -28,6 +28,18 @@ export const getChatInfo = async (chatId: string) => {
             platform: true,
             title: true,
             description: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                language: true,
+                withTimestamp: true,
+                personalization: true,
+              },
+            },
           },
         },
         messages: {
@@ -55,11 +67,7 @@ export const getChatInfo = async (chatId: string) => {
   }
 };
 
-export const createMessage = async (
-  chatId: string,
-  content: string,
-  role: MESSAGE_ROLE = "USER"
-) => {
+const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE = "USER") => {
   try {
     if (!chatId || !content) {
       throw new ApiError(400, "Invalid chat ID or content");
@@ -89,7 +97,7 @@ export const createMessage = async (
   }
 };
 
-export const getMessage = async (messageId: string) => {
+const getMessage = async (messageId: string) => {
   try {
     if (!messageId) {
       throw new ApiError(400, "Invalid message ID");
@@ -120,3 +128,8 @@ export const getMessage = async (messageId: string) => {
     throw new ApiError(500, "Failed to fetch message");
   }
 };
+
+type ChatInfo = Awaited<ReturnType<typeof getChatInfo>>;
+
+export { getChatInfo, createMessage, getMessage };
+export type { ChatInfo };
