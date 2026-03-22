@@ -20,19 +20,17 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { ToggleLeft, ToggleRight, User2 } from "lucide-react";
 import { User } from "next-auth";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
 import { redirect } from "next/navigation";
+import { useAppContext } from "@/app/context/AppContext";
+import { CHAT_LANGUAGE } from "../../generated/prisma/enums";
 
 type AvatarProps = {
   user: User;
 };
 
-const availableLanguages: readonly string[] = ["ENGLISH", "HINDI", "HINGLISH"];
-
 const AvatarDropdown = ({ user }: AvatarProps) => {
-  //TODO: temporary for now use context api/redux later
-  const [language, setLanguage] = useState<(typeof availableLanguages)[number]>("ENGLISH");
-  const [includeTimestamps, setIncludeTimestamps] = useState<boolean>(true);
+  const availableLanguages = Object.values(CHAT_LANGUAGE);
+  const { chatLanguage, setChatLanguage, timestamp, setTimestamp } = useAppContext();
 
   return (
     <DropdownMenu>
@@ -57,12 +55,15 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
           <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
           <DropdownMenuLabel>Free</DropdownMenuLabel> {/* temporary */}
           <DropdownMenuSeparator />
-          {/* language radio buttons __ disabled now */}
+          {/* language radio buttons */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger disabled>Model Language</DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>Model Language</DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup value={language} onValueChange={setLanguage}>
+                <DropdownMenuRadioGroup
+                  value={chatLanguage}
+                  onValueChange={(value) => value && setChatLanguage(value as CHAT_LANGUAGE)}
+                >
                   {availableLanguages.map((lang) => (
                     <DropdownMenuRadioItem key={lang} value={lang} className="capitalize">
                       {lang.toLowerCase()}
@@ -72,14 +73,13 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
-          {/* Timestamps toggle __ dropdown now */}
+          {/* Timestamps toggle */}
           <DropdownMenuItem
             className="flex justify-between items-center"
-            onClick={() => setIncludeTimestamps((prev) => !prev)}
-            disabled
+            onClick={() => setTimestamp((prev) => ({ ...prev, enable: !prev.enable }))}
           >
             <p>Timestamp</p>
-            <button>{includeTimestamps ? <ToggleRight size="200px" /> : <ToggleLeft />}</button>
+            <button>{timestamp.enable ? <ToggleRight size="200px" /> : <ToggleLeft />}</button>
           </DropdownMenuItem>
           {/* settings link */}
           <DropdownMenuItem onClick={() => redirect("/chat/settings")}>Settings</DropdownMenuItem>
