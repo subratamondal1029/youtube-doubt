@@ -41,7 +41,6 @@ export default function RootLayout({
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>
-        <script src="https://www.youtube.com/iframe_api" async></script>
       </body>
     </html>
   );
