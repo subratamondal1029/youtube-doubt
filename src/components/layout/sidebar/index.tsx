@@ -26,10 +26,10 @@ const getHistory = async (userId?: string) => {
   if (!userId) return [];
 
   try {
-    // make db call instead of static data
     return await getUserHistory(userId);
   } catch (error) {
-    throw new Error((error as Error).message || "Failed to fetch chat history");
+    console.error("Error fetching chat history:", error);
+    return null;
   }
 };
 
@@ -39,13 +39,15 @@ type SideBarProps = {
 
 const SideBar = async ({ user }: SideBarProps) => {
   const session = await auth();
+  let error: string | undefined;
   let history: History[] = [];
-  let error: string | undefined = undefined;
 
-  try {
-    history = await getHistory(session?.user?.id);
-  } catch (err) {
-    error = (err as Error).message;
+  const response = await getHistory(session?.user?.id);
+
+  if (response === null) {
+    error = "Failed to fetch chat history";
+  } else {
+    history = response;
   }
 
   return (
