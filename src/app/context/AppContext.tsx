@@ -4,6 +4,8 @@ import { createContext, useContext, useState, ReactNode, SetStateAction, Dispatc
 import type { History } from "@/components/layout/sidebar/chat-history";
 import { CHAT_LANGUAGE } from "../../../generated/prisma/enums";
 
+// NOTE: Timestamp is for future feature implementation
+
 type AppState = {
   timestamp: {
     enable: boolean;
