@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  SetStateAction,
-  Dispatch,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, ReactNode, SetStateAction, Dispatch } from "react";
 import type { History } from "@/components/layout/sidebar/chat-history";
 import { CHAT_LANGUAGE } from "../../../generated/prisma/enums";
 
@@ -45,30 +37,6 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
     setChatLanguage,
     setHistory,
   };
-
-  useEffect(() => {
-    if (Math.floor(timestamp.current) % 5 === 0) {
-      if (localStorage !== undefined) {
-        localStorage.setItem("timestamp", timestamp.current.toString());
-      }
-    }
-  }, [timestamp]);
-
-  useEffect(() => {
-    const updateLocalData = () => {
-      const localStorageTimestamp = localStorage.getItem("timestamp");
-      if (localStorageTimestamp) {
-        setTimestamp((prev) => ({
-          ...prev,
-          current: parseFloat(localStorageTimestamp),
-        }));
-      }
-    };
-
-    if (localStorage !== undefined) {
-      updateLocalData();
-    }
-  }, []);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
