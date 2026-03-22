@@ -12,9 +12,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { ApiSuccess } from "@/utils/ApiSuccess";
+import { useEffect, useState } from "react";
+import { useAppContext } from "@/app/context/AppContext";
+import { STATIC_CHAT_ENDPOINTS } from "@/constant";
 
 type History = {
   id: string;
@@ -28,30 +28,32 @@ type ChatHistoryProps = {
 const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
   const pathname = usePathname();
   const [chatId, setChatId] = useState<string>("");
-  const [history, setHistory] = useState(defaultHistory);
-  const prevHistory = useRef(history);
 
-  //TODO: implement context api or redux
+  const { history, setHistory } = useAppContext();
+
+  // set initial history
   useEffect(() => {
-    const updateHistory = async () => {
-      setChatId("");
-      const id = pathname.split("/").pop()?.trim();
-
-      if (id === "settings" || id === "chat" || id === "" || !id) return;
-
-      setChatId(id);
-
-      const existingIndex = prevHistory.current.findIndex((chat) => chat.id === id);
-      if (existingIndex !== -1) return;
-
-      // get history and update
-      const { data }: { data: ApiSuccess<History> } = await axios.get(`/api/chats/history/${id}`);
-      const newHistory = [...prevHistory.current, data.data];
-      prevHistory.current = newHistory;
-      setHistory(newHistory);
+    const setInitialHistory = () => {
+      setHistory(defaultHistory);
     };
 
-    updateHistory();
+    setInitialHistory();
+  }, [defaultHistory, setHistory]);
+
+  // set current chat id
+  useEffect(() => {
+    const setCurrentChatId = () => {
+      setChatId("");
+      const chatId = pathname.split("/").pop();
+
+      if (!chatId || chatId === "" || STATIC_CHAT_ENDPOINTS.includes(chatId)) {
+        return;
+      }
+
+      setChatId(chatId);
+    };
+
+    setCurrentChatId();
   }, [pathname]);
 
   return (
