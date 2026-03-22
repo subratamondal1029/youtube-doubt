@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@/context/*": ["./src/app/context/*"],
-      "@/hooks/*": ["./src/app/hooks/*"],
+      "@/hooks/*": ["./src/hooks/*"],
       "@/services/*": ["./src/lib/services/*"],
       "@/utils/*": ["./src/lib/utils/*"],
       "@/repositories/*": ["./src/lib/repositories/*"],
