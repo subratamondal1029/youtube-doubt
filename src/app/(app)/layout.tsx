@@ -10,8 +10,8 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
 
   return (
-    <AppContextProvider>
-      <SidebarProvider>
+    <SidebarProvider>
+      <AppContextProvider>
         {session?.user && <SideBar user={session.user} />}
         <div className="flex min-h-svh flex-1 flex-col">
           <header
@@ -27,8 +27,8 @@ const AppLayout = async ({ children }: { children: React.ReactNode }) => {
           </header>
           <div className="pl-4 w-full h-screen overflow-hidden">{children}</div>
         </div>
-      </SidebarProvider>
-    </AppContextProvider>
+      </AppContextProvider>
+    </SidebarProvider>
   );
 };
 
