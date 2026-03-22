@@ -2,9 +2,8 @@ import YtPlayer from "./player";
 import { type ChatInfo, getChatInfo } from "@/lib/repositories/chat.repo";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import Chat from "./chat";
-import { buttonVariants } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { notFound } from "next/navigation";
+import { validate as isUuid } from "uuid";
 
 type PlayerProps = {
   params: Promise<{
@@ -30,20 +29,14 @@ const getChatData = async (id: string): Promise<ChatInfo | null> => {
 const Player = async ({ params }: PlayerProps) => {
   const { id } = await params;
 
+  if (!id || !isUuid(id)) {
+    return notFound();
+  }
+
   const chatData = await getChatData(id);
 
   if (!chatData) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-2">404</h1>
-          <p className="text-lg text-muted-foreground">Chat not found</p>
-          <Link href="/chat" className={`${buttonVariants()} mt-4 cursor-pointer`}>
-            <Plus /> <p>New Chat</p>
-          </Link>
-        </div>
-      </div>
-    );
+    return notFound();
   }
 
   return (

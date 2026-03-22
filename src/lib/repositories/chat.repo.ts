@@ -2,10 +2,11 @@ import { ApiError } from "@/utils/ApiError";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import { MESSAGE_ROLE } from "../../../generated/prisma/enums";
+import { validate } from "uuid";
 
 const getChatInfo = async (chatId: string) => {
   try {
-    if (!chatId) {
+    if (!chatId || !validate(chatId)) {
       throw new ApiError(400, "Invalid chat ID");
     }
 
@@ -57,12 +58,16 @@ const getChatInfo = async (chatId: string) => {
     });
 
     if (!chat) {
+      console.log("Chat not found:", chat);
       throw new ApiError(404, "Chat not found");
     }
 
     return chat;
   } catch (error) {
     console.error("Error occurred while fetching chat info:", error);
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(500, "Failed to fetch chat info");
   }
 };
