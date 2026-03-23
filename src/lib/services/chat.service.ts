@@ -9,8 +9,8 @@ import { Subtitle, NewChatProcesses, NewChatProcessResponse } from "@/types/chat
 
 /*
 Tasks
-TODO: make language dynamic
-TODO: make platform dynamic
+TODO: get user profile using userId and set the language and model
+TODO: split code to repositories for db calls
 TODO: add chunkId in raw subtitles
 */
 
@@ -103,7 +103,7 @@ export const createNewChat = async ({
     where: {
       AND: {
         language: "HINGLISH",
-        model: "SARVAM_M",
+        model: "SARVAM_30B",
       },
     },
     select: {
