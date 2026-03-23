@@ -16,6 +16,8 @@ import { NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
 import { Progress } from "@/components/ui/progress";
 import { ApiError } from "@/utils/ApiError";
 import { toast } from "sonner";
+import { useAppContext } from "@/app/context/AppContext";
+import { History } from "@/components/layout/sidebar/chat-history";
 
 type Status = "open" | "success" | "error" | "processing" | "closed";
 
@@ -52,6 +54,7 @@ const NewChat = () => {
   const [processResponses, setProcessResponses] = useState<NewChatProcessResponse[]>([]);
 
   const [progress, setProgress] = useState<number>(0);
+  const { setHistory } = useAppContext();
 
   const submitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,6 +71,10 @@ const NewChat = () => {
 
       const chatId: string = await new Promise((resolve, reject) => {
         const es = new EventSource("/api/chats/new?url=" + encodeURIComponent(url));
+        const chat: History = {
+          id: "",
+          title: "",
+        };
 
         es.onopen = () => {
           setStatus("open");
@@ -81,7 +88,12 @@ const NewChat = () => {
 
           if (data.step === NewChatProcesses.COMPLETE) {
             setStatus("success");
-            resolve(data.data.chatId);
+            chat.id = data.data.chatId;
+            setHistory((prev) => [chat, ...prev]);
+
+            resolve(chat.id);
+          } else if (data.step === NewChatProcesses.FETCHED_VIDEO_DETAILS) {
+            chat.title = data.data.title;
           } else if (data.step === NewChatProcesses.ERROR) {
             reject(new ApiError(0, data.error));
           } else {
@@ -101,6 +113,7 @@ const NewChat = () => {
     } catch (error) {
       console.error(error);
 
+      setStatus("error");
       if (!(error instanceof ApiError)) {
         // show toast message
         toast.error("An unexpected error occurred", {
@@ -174,7 +187,7 @@ const NewChat = () => {
               <InputGroupButton
                 variant="secondary"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isValid || !url}
                 className="rounded-full cursor-pointer h-10 w-10 flex items-center justify-center transition-all hover:bg-secondary/80 disabled:opacity-50"
               >
                 {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
