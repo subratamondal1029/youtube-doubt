@@ -13,6 +13,9 @@ export const getUserHistory = async (userId: string) => {
         },
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return history.map((item) => ({
