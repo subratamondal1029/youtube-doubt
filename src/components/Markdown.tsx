@@ -18,6 +18,7 @@ export default function Markdown({ children, className }: Props) {
         prose-pre:my-4
         prose-li:my-1
         prose-headings:mt-6 prose-headings:mb-3
+        prose-code:rounded-lg
         ${className ?? ""}
       `}
     >
