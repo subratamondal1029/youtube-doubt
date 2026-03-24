@@ -8,8 +8,8 @@ on:
 env:
   DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/youtube_doubt_ci' }}
   AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-auth-secret-fallback' }}
-  YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY || "fallback-youtube-api-key" }}
-  SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY || "fallback-sarvam-api-key" }}
+  YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY || 'fallback-youtube-api-key' }}
+  SARVAM_API_KEY: ${{ secrets.SARVAM_API_KEY || 'fallback-sarvam-api-key' }}
 
 jobs:
   quality:
