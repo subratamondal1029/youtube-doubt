@@ -1,3 +1,5 @@
+import { CHAT_LANGUAGE } from "../../generated/prisma/client";
+
 export enum NewChatProcesses {
   INITIALIZING = 1,
   FETCHED_VIDEO_DETAILS = 2,
@@ -52,4 +54,10 @@ export type Subtitle = {
   start: number;
   end: number;
   content: string;
+};
+
+export type MessagePayload = {
+  message: string;
+  language?: CHAT_LANGUAGE;
+  timestamp?: number;
 };

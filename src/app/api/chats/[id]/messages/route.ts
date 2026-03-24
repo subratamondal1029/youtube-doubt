@@ -8,11 +8,7 @@ import { MAX_MESSAGES_PER_CHAT } from "@/constant";
 import { getVideoSubtitlesByTimestamp } from "@/lib/repositories/video.repo";
 import aiService from "@/lib/services/ai.service";
 
-type MessagePayload = {
-  message: string;
-  language?: CHAT_LANGUAGE;
-  timestamp?: number;
-};
+import type { MessagePayload } from "@/types/chat.types";
 
 export const POST = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
