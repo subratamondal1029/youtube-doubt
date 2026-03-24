@@ -26,5 +26,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       });
     },
   },
-  // TODO: custom auth pages later
+  pages: {
+    signIn: "/sign-in",
+  },
 });
