@@ -39,6 +39,13 @@ class AIService {
       const formattedMessages = this.formatMessages(messages);
       const systemPrompt = await this.formatSystemPrompt(userId, chat, language);
       formattedMessages.unshift({ role: "system", content: systemPrompt });
+      formattedMessages.push({
+        role: "user",
+        content: `subtitles: ${subtitles?.map((s) => `(${s.start} - ${s.end}) ${s.content}`).join(" ")}
+                 ===========
+                 question from: ${timestamp ?? "Not Available"}
+                 question: ${newMessage}`,
+      });
 
       const model = chat.model.toLowerCase().replace("_", "-") as SarvamAI.SarvamModelIds;
       const response = await client.chat.completions({
