@@ -9,6 +9,7 @@ import { getVideoSubtitlesByTimestamp } from "@/lib/repositories/video.repo";
 import aiService from "@/lib/services/ai.service";
 
 import type { MessagePayload } from "@/types/chat.types";
+import { ChunkSubtitle } from "../../../../../../generated/prisma/client";
 
 export const POST = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
@@ -43,9 +44,9 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
       throw new ApiError(429, "Maximum messages per chat exceeded");
     }
 
-    let subtitles;
+    let subtitles: ChunkSubtitle[] = [];
     if (timestamp !== undefined) {
-      await getVideoSubtitlesByTimestamp(id, timestamp);
+      subtitles = await getVideoSubtitlesByTimestamp(id, timestamp);
     }
 
     const responseStream = await aiService.send(
