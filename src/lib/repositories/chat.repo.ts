@@ -72,6 +72,39 @@ const getChatInfo = async (chatId: string) => {
   }
 };
 
+const getChat = async (chatId: string) => {
+  try {
+    if (!chatId || !validate(chatId)) {
+      throw new ApiError(400, "Invalid chat ID");
+    }
+
+    const session = await auth();
+
+    if (!session || !session.user?.id) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    const chat = await prisma.chat.findUnique({
+      where: {
+        id: chatId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!chat) {
+      throw new ApiError(404, "Chat not found");
+    }
+
+    return chat;
+  } catch (error) {
+    console.error("Error occurred while fetching chat info:", error);
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, "Failed to fetch chat info");
+  }
+};
+
 const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE = "USER") => {
   try {
     if (!chatId || !content) {
@@ -99,6 +132,39 @@ const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE
   } catch (error) {
     console.error("Error occurred while creating message:", error);
     throw new ApiError(500, "Failed to create message");
+  }
+};
+
+const getMessages = async (chatId: string) => {
+  try {
+    if (!chatId || !validate(chatId)) {
+      throw new ApiError(400, "Invalid chat ID");
+    }
+
+    const session = await auth();
+
+    if (!session || !session.user?.id) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
+    const messages = await prisma.message.findMany({
+      where: {
+        chatId,
+        chat: {
+          userId: session.user.id,
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return messages;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, "Failed to fetch messages");
   }
 };
 
@@ -136,5 +202,5 @@ const getMessage = async (messageId: string) => {
 
 type ChatInfo = Awaited<ReturnType<typeof getChatInfo>>;
 
-export { getChatInfo, createMessage, getMessage };
+export { getChatInfo, getChat, createMessage, getMessage, getMessages };
 export type { ChatInfo };
