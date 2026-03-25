@@ -26,7 +26,7 @@ const SideBarHeaderShortcut = () => {
         <TooltipContent side="right">Toggle Sidebar</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <Link
             href="/chat"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground hover:bg-white/10 transition-colors"
