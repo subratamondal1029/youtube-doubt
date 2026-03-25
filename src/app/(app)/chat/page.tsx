@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/input-group";
 import extractYouTubeId from "@/utils/extractYoutubeId";
 import { Loader2, Send } from "lucide-react";
-import { redirect, RedirectType } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
@@ -46,6 +46,7 @@ function isValidUrl(url: string): boolean {
 }
 
 const NewChat = () => {
+  const router = useRouter();
   const [url, setUrl] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -108,8 +109,8 @@ const NewChat = () => {
       });
 
       setTimeout(() => {
-        redirect(`/chat/${chatId}`, RedirectType.replace);
-      }, 2 * 1000);
+        router.replace(`/chat/${chatId}`);
+      }, 2000);
     } catch (error) {
       console.error(error);
 
