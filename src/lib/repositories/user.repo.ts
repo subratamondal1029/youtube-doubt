@@ -22,7 +22,10 @@ const getUserProfile = async (userId: string) => {
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
-    } else throw new ApiError(500, "An unexpected error occurred");
+    } else {
+      console.error("Error occurred while fetching user profile:", error);
+      throw new ApiError(500, "An unexpected error occurred");
+    }
   }
 };
 
