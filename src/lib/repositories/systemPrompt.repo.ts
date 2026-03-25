@@ -23,6 +23,7 @@ const getSystemPrompt = async (language: CHAT_LANGUAGE, model: AI_MODEL) => {
     if (error instanceof ApiError) {
       throw error;
     }
+    console.error("Failed to get system prompt:", error);
     throw new ApiError(500, "Failed to get system prompt");
   }
 };
