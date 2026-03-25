@@ -17,7 +17,7 @@ const SendToast = ({ variant, message, duration }: SendToastProps) => {
     });
   }, [duration, message, variant]);
 
-  return "";
+  return null;
 };
 
 export default SendToast;
