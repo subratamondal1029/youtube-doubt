@@ -166,6 +166,10 @@ const startNewChat = async ({
     // format subtitle as per requirement
     const subtitleResponse: TranscriptResponse[] = await getSubtitles(id);
 
+    if (subtitleResponse.length === 0) {
+      throw new ApiError(404, "No subtitles available for this video");
+    }
+
     const lastSub = subtitleResponse[subtitleResponse.length - 1];
     const lastSubEnd = Math.floor(lastSub.offset + lastSub.duration);
 
