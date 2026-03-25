@@ -10,6 +10,10 @@ A doubt-clearing chatbot specially built for Indian students. Paste a YouTube vi
 - Reference the current timestamp to ask about what is playing right now.
 - Get responses in your preferred language: **Hindi**, **English**, or **Hinglish** (more languages coming in the next version).
 
+## System Flow
+
+![System Flow](.github/assets/diagram.png)
+
 ## Status
 
 This is a prototype / demonstration project.
