@@ -61,6 +61,7 @@ export async function GET(req: NextRequest) {
 
       try {
         if (existingVideo) {
+          //FIXME: title not going on existing video
           await createNewChat({
             userId: session.user.id,
             videoId: existingVideo.id,

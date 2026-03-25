@@ -91,11 +91,13 @@ const NewChat = () => {
             setStatus("success");
             chat.id = data.data.chatId;
             setHistory((prev) => [chat, ...prev]);
+            es.close();
 
             resolve(chat.id);
           } else if (data.step === NewChatProcesses.FETCHED_VIDEO_DETAILS) {
             chat.title = data.data.title;
           } else if (data.step === NewChatProcesses.ERROR) {
+            es.close();
             reject(new ApiError(0, data.error));
           } else {
             setStatus("processing");
