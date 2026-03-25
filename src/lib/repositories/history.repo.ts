@@ -25,7 +25,7 @@ export const getUserHistory = async (userId: string) => {
 };
 
 export const getHistoryInfo = async (historyId: string, userId: string) => {
-  const history = await prisma.chat.findUniqueOrThrow({
+  const history = await prisma.chat.findFirstOrThrow({
     where: {
       id: historyId,
       userId,
