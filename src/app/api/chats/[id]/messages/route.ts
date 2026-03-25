@@ -14,6 +14,13 @@ import { ChunkSubtitle } from "../../../../../../generated/prisma/client";
 export const POST = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
+
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.id) {
+      throw new ApiError(401, "Unauthorized");
+    }
+
     const { message, language, timestamp } = (await req.json()) as MessagePayload;
 
     // TODO: do validation with zod
@@ -27,12 +34,6 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
 
     if (language && !Object.values(CHAT_LANGUAGE).includes(language)) {
       throw new ApiError(400, "Invalid language");
-    }
-
-    const session = await auth();
-
-    if (!session || !session.user || !session.user.id) {
-      throw new ApiError(401, "Unauthorized");
     }
 
     const messages = await getMessages(id);
