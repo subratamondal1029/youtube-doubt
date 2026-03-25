@@ -1,12 +1,12 @@
 import { ChatInfo } from "@/lib/repositories/chat.repo";
 import YoutubePlayer from "@/components/YoutubePlayer";
 
-type YoutubePlayerProps = {
+type PlayerProps = {
   video: ChatInfo["video"];
   className?: string;
 };
 
-export default function Player({ video, className }: YoutubePlayerProps) {
+export default function Player({ video, className }: PlayerProps) {
   if (!video) {
     return <div className="text-center text-lg font-medium">Video not found</div>;
   }
