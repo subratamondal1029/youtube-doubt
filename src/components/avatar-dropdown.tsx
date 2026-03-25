@@ -78,14 +78,15 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
           <DropdownMenuItem
             className="flex justify-between items-center"
             role="switch"
+            aria-label="Toggle timestamp"
             aria-checked={timestamp.enable}
             onClick={() => setTimestamp((prev) => ({ ...prev, enable: !prev.enable }))}
           >
             <p>Timestamp</p>
             {timestamp.enable ? (
-              <ToggleRight className="h-4 w-4" />
+              <ToggleRight className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <ToggleLeft className="h-4 w-4" />
+              <ToggleLeft className="h-4 w-4" aria-hidden="true" />
             )}
           </DropdownMenuItem>
           {/* settings link */}

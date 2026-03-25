@@ -36,7 +36,10 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
       throw new ApiError(400, "Invalid language");
     }
 
-    if (timestamp !== undefined && (typeof timestamp !== "number" || timestamp < 0)) {
+    if (
+      timestamp !== undefined &&
+      (typeof timestamp !== "number" || !Number.isFinite(timestamp) || timestamp < 0)
+    ) {
       throw new ApiError(400, "Invalid timestamp");
     }
 
