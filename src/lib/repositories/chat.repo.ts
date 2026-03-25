@@ -188,7 +188,7 @@ const getMessages = async (chatId: string) => {
 
 const getMessage = async (messageId: string) => {
   try {
-    if (!messageId) {
+    if (!messageId || !validate(messageId)) {
       throw new ApiError(400, "Invalid message ID");
     }
 
