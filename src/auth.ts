@@ -19,11 +19,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         throw new Error("User ID missing in createUser event");
       }
 
-      await prisma.profile.create({
-        data: {
-          userId: user.id,
-        },
-      });
+      try {
+        await prisma.profile.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      } catch (error) {
+        console.error("Error occurred while creating user profile:", error);
+        throw error;
+      }
     },
   },
   pages: {
