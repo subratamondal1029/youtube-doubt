@@ -20,7 +20,7 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { ToggleLeft, ToggleRight, User2 } from "lucide-react";
 import { User } from "next-auth";
 import { signOut } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAppContext } from "@/app/context/AppContext";
 import { CHAT_LANGUAGE } from "../../generated/prisma/enums";
 
@@ -29,6 +29,7 @@ type AvatarProps = {
 };
 
 const AvatarDropdown = ({ user }: AvatarProps) => {
+  const router = useRouter();
   const availableLanguages = Object.values(CHAT_LANGUAGE);
   const { chatLanguage, setChatLanguage, timestamp, setTimestamp } = useAppContext();
 
@@ -82,7 +83,9 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
             <button>{timestamp.enable ? <ToggleRight size="200px" /> : <ToggleLeft />}</button>
           </DropdownMenuItem>
           {/* settings link */}
-          <DropdownMenuItem onClick={() => redirect("/chat/settings")}>Settings</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/chat/settings")}>
+            Settings
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {/* logout button */}
