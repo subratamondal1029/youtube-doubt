@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { getMessages } from "@/lib/repositories/chat.repo";
+import { getChat, getMessages } from "@/lib/repositories/chat.repo";
 import { ApiError } from "@/lib/utils/ApiError";
 import { NextRequest, NextResponse } from "next/server";
 import { validate } from "uuid";
@@ -47,7 +47,10 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
 
     let subtitles: ChunkSubtitle[] = [];
     if (timestamp !== undefined) {
-      subtitles = await getVideoSubtitlesByTimestamp(id, timestamp);
+      const chat = await getChat(id);
+      if (chat.videoId) {
+        subtitles = await getVideoSubtitlesByTimestamp(chat.videoId, timestamp);
+      }
     }
 
     const responseStream = await aiService.send(
