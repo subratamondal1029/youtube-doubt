@@ -117,9 +117,23 @@ const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE
       throw new ApiError(401, "Unauthorized");
     }
 
+    const chat = await prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!chat) {
+      throw new ApiError(404, "Chat not found");
+    }
+
     const message = await prisma.message.create({
       data: {
-        chatId,
+        chatId: chat.id,
         role,
         content,
       },
