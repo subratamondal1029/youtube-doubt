@@ -4,10 +4,12 @@ import prisma from "../prisma";
 
 const getSystemPrompt = async (language: CHAT_LANGUAGE, model: AI_MODEL) => {
   try {
-    const systemPrompt = await prisma.systemInstruction.findFirst({
+    const systemPrompt = await prisma.systemInstruction.findUnique({
       where: {
-        language,
-        model,
+        model_language: {
+          language,
+          model,
+        },
       },
       select: {
         content: true,
