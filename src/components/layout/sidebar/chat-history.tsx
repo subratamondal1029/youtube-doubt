@@ -33,11 +33,7 @@ const ChatHistory = ({ history: defaultHistory }: ChatHistoryProps) => {
 
   // set initial history
   useEffect(() => {
-    const setInitialHistory = () => {
-      setHistory(defaultHistory);
-    };
-
-    setInitialHistory();
+    setHistory(defaultHistory);
   }, [defaultHistory, setHistory]);
 
   // set current chat id
