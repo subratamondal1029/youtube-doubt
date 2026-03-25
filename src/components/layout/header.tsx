@@ -68,7 +68,7 @@ const Header = async () => {
                 </ul>
                 <div className="mt-auto pt-6">
                   <Link
-                    href="sign-in"
+                    href="/sign-in"
                     className={buttonVariants({
                       variant: "default",
                       size: "sm",
