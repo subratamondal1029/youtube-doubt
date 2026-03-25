@@ -55,13 +55,21 @@ export async function GET(req: NextRequest) {
         return send({ step: NewChatProcesses.ERROR, error: "Invalid YouTube URL" });
       }
 
-      const existingVideo = await prisma.video.findUnique({
-        where: { remoteId_platform: { remoteId: youtubeId, platform: "YOUTUBE" } },
-      });
-
       try {
+        const existingVideo = await prisma.video.findUnique({
+          where: { remoteId_platform: { remoteId: youtubeId, platform: "YOUTUBE" } },
+        });
+
         if (existingVideo) {
-          //FIXME: title not going on existing video
+          send({
+            step: NewChatProcesses.FETCHED_VIDEO_DETAILS,
+            message: "Video title and description fetched.",
+            data: {
+              title: existingVideo.title,
+              description: existingVideo.description ?? "",
+            },
+          });
+
           await createNewChat({
             userId: session.user.id,
             videoId: existingVideo.id,
