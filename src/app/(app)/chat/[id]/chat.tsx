@@ -172,12 +172,12 @@ const Chat = ({ chat }: ChatPops) => {
 
   useEffect(() => {
     // set chat language
-    setChatLanguage(chat.language || chat.user?.profile?.language || "HINGLISH");
+    setChatLanguage(chat.language ?? chat.user?.profile?.language ?? "HINGLISH");
 
     // set include timestamp
     setTimestamp((prev) => ({
       ...prev,
-      enable: chat.withTimestamp || chat.user?.profile?.withTimestamp || true,
+      enable: chat.withTimestamp ?? chat.user?.profile?.withTimestamp ?? true,
     }));
   }, [chat, setChatLanguage, setTimestamp]);
 
