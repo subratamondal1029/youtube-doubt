@@ -145,6 +145,10 @@ const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE
     return message;
   } catch (error) {
     console.error("Error occurred while creating message:", error);
+
+    if (error instanceof ApiError) {
+      throw error;
+    }
     throw new ApiError(500, "Failed to create message");
   }
 };
