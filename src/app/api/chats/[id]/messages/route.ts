@@ -18,7 +18,7 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
 
     // TODO: do validation with zod
     if (!id || !validate(id)) {
-      throw new ApiError(400, "Invalid message ID");
+      throw new ApiError(400, "Invalid chat ID");
     }
 
     if (!message || !message.trim()) {
