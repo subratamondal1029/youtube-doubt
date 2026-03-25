@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       }
 
       const existingVideo = await prisma.video.findUnique({
-        where: { id: youtubeId },
+        where: { remoteId_platform: { remoteId: youtubeId, platform: "YOUTUBE" } },
       });
 
       if (existingVideo) {
