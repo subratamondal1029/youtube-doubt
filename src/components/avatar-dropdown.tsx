@@ -80,7 +80,11 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
             onClick={() => setTimestamp((prev) => ({ ...prev, enable: !prev.enable }))}
           >
             <p>Timestamp</p>
-            <button>{timestamp.enable ? <ToggleRight size="200px" /> : <ToggleLeft />}</button>
+            {timestamp.enable ? (
+              <ToggleRight className="h-4 w-4" />
+            ) : (
+              <ToggleLeft className="h-4 w-4" />
+            )}
           </DropdownMenuItem>
           {/* settings link */}
           <DropdownMenuItem onClick={() => router.push("/chat/settings")}>
