@@ -25,10 +25,10 @@ const getVideoSubtitlesByTimestamp = async (id: string, timestamp: number) => {
       where: {
         videoId: id,
         start: {
-          gte: minimumT,
+          lte: minimumT,
         },
         end: {
-          lte: maximumT,
+          gte: maximumT,
         },
       },
     });
