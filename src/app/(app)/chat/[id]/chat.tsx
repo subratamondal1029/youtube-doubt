@@ -67,10 +67,16 @@ const Chat = ({ chat }: ChatPops) => {
       const lines = decoder.decode(value).split("\n").filter(Boolean);
 
       for (const line of lines) {
-        const { content, thinking } = JSON.parse(line) as {
+        const { content, thinking, error } = JSON.parse(line) as {
           content?: string | null;
           thinking?: string | null;
+          error?: string | null;
         };
+
+        if (error) {
+          setError(error);
+          break;
+        }
 
         if (thinking) {
           setIsThinking(true);
