@@ -212,6 +212,7 @@ model SystemInstruction {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([model, language])
   @@index([model, language])
   @@map("system_instructions")
 }
