@@ -17,6 +17,7 @@ type YoutubePlayerProps = {
 const YoutubePlayer = ({ videoId }: YoutubePlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { setTimestamp } = useAppContext();
 
   const updateTimestamp = () => {
@@ -32,16 +33,14 @@ const YoutubePlayer = ({ videoId }: YoutubePlayerProps) => {
   };
 
   const onStateChange = (e: YT.OnStateChangeEvent) => {
-    let intervalId: NodeJS.Timeout | null = null;
-
     if (e.data === YT.PlayerState.PLAYING) {
-      intervalId = setInterval(updateTimestamp, 250);
-    } else if (
-      (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) &&
-      intervalId
-    ) {
-      clearInterval(intervalId);
-      intervalId = null;
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      intervalRef.current = setInterval(updateTimestamp, 250);
+    } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     }
   };
 
@@ -79,10 +78,13 @@ const YoutubePlayer = ({ videoId }: YoutubePlayerProps) => {
 
     window.onYouTubeIframeAPIReady = initPlayer;
 
-    const player = playerRef.current;
     return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       document.getElementById("yt-iframe-api")?.remove();
-      player?.destroy();
+      playerRef.current?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
