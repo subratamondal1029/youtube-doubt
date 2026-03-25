@@ -58,7 +58,6 @@ const getChatInfo = async (chatId: string) => {
     });
 
     if (!chat) {
-      console.log("Chat not found:", chat);
       throw new ApiError(404, "Chat not found");
     }
 
@@ -107,7 +106,7 @@ const getChat = async (chatId: string) => {
 
 const createMessage = async (chatId: string, content: string, role: MESSAGE_ROLE = "USER") => {
   try {
-    if (!chatId || !content) {
+    if (!chatId || !validate(chatId) || !content) {
       throw new ApiError(400, "Invalid chat ID or content");
     }
 

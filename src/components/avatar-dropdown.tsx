@@ -42,7 +42,7 @@ const AvatarDropdown = ({ user }: AvatarProps) => {
           tooltip="Account"
         >
           <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src={user.image || ""} alt="user" />
+            <AvatarImage src={user.image || ""} alt={user.name ?? "User avatar"} />
             <AvatarFallback>
               <User2 className="h-4 w-4" />
             </AvatarFallback>
