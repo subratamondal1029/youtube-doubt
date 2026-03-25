@@ -64,6 +64,7 @@ class AIService {
 
       const stream = new ReadableStream({
         async start(controller) {
+          // FIXME: handle mid stream errors
           for await (const chunk of response) {
             const content = chunk.choices[0]?.delta?.content;
             const reasoning_content = chunk.choices[0]?.delta?.reasoning_content;
