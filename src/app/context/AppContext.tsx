@@ -46,7 +46,7 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
 const useAppContext = () => {
   const ctx = useContext(AppContext);
   if (!ctx) {
-    throw new Error("useAppContext must be used within an AppProvider");
+    throw new Error("useAppContext must be used within an AppContextProvider");
   }
   return ctx;
 };
