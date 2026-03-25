@@ -213,6 +213,10 @@ const getMessage = async (messageId: string) => {
 
     return message;
   } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
     console.error("Error occurred while fetching message:", error);
     throw new ApiError(500, "Failed to fetch message");
   }
