@@ -20,7 +20,6 @@ import SideBarHeaderShortcuts from "@/components/layout/sidebar/sidebar-header-s
 import type { User } from "next-auth";
 import SendToast from "@/components/send-toast";
 import { getUserHistory } from "@/repositories/history.repo";
-import { auth } from "@/auth";
 
 const getHistory = async (userId?: string) => {
   if (!userId) return [];
@@ -38,11 +37,10 @@ type SideBarProps = {
 };
 
 const SideBar = async ({ user }: SideBarProps) => {
-  const session = await auth();
   let error: string | undefined;
   let history: History[] = [];
 
-  const response = await getHistory(session?.user?.id);
+  const response = await getHistory(user.id);
 
   if (response === null) {
     error = "Failed to fetch chat history";
