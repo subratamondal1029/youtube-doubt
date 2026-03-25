@@ -3,8 +3,8 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import ThemeProvider from "@/components/theme-provider";
 import "./globals.css";
-import SessionWrapper from "@/components/sessionWrapper";
-import { auth } from "@/auth";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -24,25 +24,23 @@ export const metadata: Metadata = {
     "Ask questions and get answers about YouTube content especially made for engineering students.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
     <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SessionWrapper session={session}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </SessionWrapper>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

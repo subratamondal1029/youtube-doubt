@@ -11,6 +11,7 @@ enum CHAT_LANGUAGE {
   HINDI
   ENGLISH
   HINGLISH
+  BENGALI
 }
 
 enum SUBTITLE_LANGUAGE {
@@ -28,7 +29,7 @@ enum MESSAGE_ROLE {
 }
 
 enum AI_MODEL {
-  SARVAM_M
+  SARVAM_30B
 }
 
 // auth.js default schema
@@ -164,7 +165,7 @@ model Chat {
   id                  String         @id @default(uuid())
   userId              String?
   videoId             String?
-  model               AI_MODEL       @default(SARVAM_M)
+  model               AI_MODEL       @default(SARVAM_30B)
   systemInstructionId String
   language            CHAT_LANGUAGE?
   withTimestamp       Boolean?
@@ -203,7 +204,7 @@ model Message {
 model SystemInstruction {
   id       String        @id @default(uuid())
   language CHAT_LANGUAGE @default(ENGLISH)
-  model    AI_MODEL      @default(SARVAM_M)
+  model    AI_MODEL      @default(SARVAM_30B)
   content  String
 
   chats Chat[]

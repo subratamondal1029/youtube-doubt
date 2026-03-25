@@ -13,5 +13,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   secret,
   adapter: PrismaAdapter(prisma),
   providers: [Google],
-  // TODO: custom auth pages later
+  events: {
+    async createUser({ user }) {
+      if (!user.id) {
+        throw new Error("User ID missing in createUser event");
+      }
+
+      try {
+        await prisma.profile.create({
+          data: {
+            userId: user.id,
+          },
+        });
+      } catch (error) {
+        console.error("Error occurred while creating user profile:", error);
+        throw error;
+      }
+    },
+  },
+  pages: {
+    signIn: "/sign-in",
+  },
 });
