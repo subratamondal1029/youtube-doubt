@@ -16,13 +16,32 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream({
     async start(controller) {
+      let isClosed = false;
+
+      const closeController = () => {
+        if (isClosed) return;
+        isClosed = true;
+        controller.close();
+      };
+
+      // Register disconnect cleanup before any await so abort events are not missed.
+      req.signal.addEventListener("abort", () => {
+        closeController();
+      });
+
+      if (req.signal.aborted) {
+        closeController();
+        return;
+      }
+
       const send = (response: NewChatProcessResponse) => {
+        if (isClosed) return;
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(response)}\n\n`));
         if (
           response.step === NewChatProcesses.ERROR ||
           response.step === NewChatProcesses.COMPLETE
         ) {
-          controller.close();
+          closeController();
         }
       };
 
@@ -40,24 +59,24 @@ export async function GET(req: NextRequest) {
         where: { remoteId_platform: { remoteId: youtubeId, platform: "YOUTUBE" } },
       });
 
-      if (existingVideo) {
-        createNewChat({
-          userId: session.user.id,
-          videoId: existingVideo.id,
-          callback: send,
-        });
-      } else {
-        startNewChat({
-          id: youtubeId,
-          userId: session.user.id,
-          callback: send,
-        });
+      try {
+        if (existingVideo) {
+          await createNewChat({
+            userId: session.user.id,
+            videoId: existingVideo.id,
+            callback: send,
+          });
+        } else {
+          await startNewChat({
+            id: youtubeId,
+            userId: session.user.id,
+            callback: send,
+          });
+        }
+      } catch (error) {
+        console.error("Error in chat creation:", error);
+        send({ step: NewChatProcesses.ERROR, error: "Failed to create chat" });
       }
-
-      // Cleanup on client disconnect
-      req.signal.addEventListener("abort", () => {
-        controller.close();
-      });
     },
   });
 
