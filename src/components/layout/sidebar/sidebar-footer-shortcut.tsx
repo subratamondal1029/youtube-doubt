@@ -30,12 +30,15 @@ export default function SidebarFooterShortcut() {
               {"href" in shortcut ? (
                 <Link
                   href={shortcut.href}
+                  aria-label={shortcut.label}
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground hover:bg-white/10 transition-colors"
                 >
                   <Icon className="h-4 w-4" />
                 </Link>
               ) : (
                 <button
+                  type="button"
+                  aria-label={shortcut.label}
                   onClick={shortcut.onClick}
                   className={`cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground transition-colors ${shortcut.label === "Logout" ? "hover:bg-red-500" : "hover:bg-white/10"}`}
                 >
