@@ -30,6 +30,10 @@ const getVideoDetails = async (videoId: string): Promise<VideoInfo> => {
       `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`
     );
 
+    if (!response.data.items || response.data.items.length === 0) {
+      throw new ApiError(404, "Video not found or is unavailable");
+    }
+
     const snippet = response.data.items[0].snippet;
 
     return {
