@@ -8,7 +8,7 @@ A doubt-clearing chatbot specially built for Indian students. Paste a YouTube vi
 - The video is embedded directly on the page with an iframe so you can watch and ask doubts side by side.
 - Ask anything about the video — concepts, explanations, specific moments.
 - Reference the current timestamp to ask about what is playing right now.
-- Get responses in your preferred language: **Hindi**, **English**, or **Hinglish** (more languages coming in the next version).
+- Get responses in your preferred language: **Bengali**, **Hindi**, **English**, or **Hinglish** (more languages coming in the next version).
 
 ## System Flow
 
