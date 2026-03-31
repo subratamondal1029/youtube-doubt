@@ -16,4 +16,4 @@ A doubt-clearing chatbot specially built for Indian students. Paste a YouTube vi
 
 ## Status
 
-This is a prototype / demonstration project.
+This project is an **MVP (Minimum Viable Product)**.
