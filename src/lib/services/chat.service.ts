@@ -107,7 +107,7 @@ export const createNewChat = async ({
     where: {
       AND: {
         language: "HINGLISH",
-        model: "SARVAM_30B",
+        model: "SARVAM_105B",
       },
     },
     select: {
