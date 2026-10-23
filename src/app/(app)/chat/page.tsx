@@ -10,7 +10,7 @@ import {
 import extractYouTubeId from "@/utils/extractYoutubeId";
 import { Loader2, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { NewChatProcesses, NewChatProcessResponse } from "@/types/chat.types";
 import { Progress } from "@/components/ui/progress";
@@ -48,7 +48,6 @@ function isValidUrl(url: string): boolean {
 const NewChat = () => {
   const router = useRouter();
   const [url, setUrl] = useState<string>("");
-  const [isValid, setIsValid] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [status, setStatus] = useState<Status>("closed");
@@ -57,11 +56,12 @@ const NewChat = () => {
   const [progress, setProgress] = useState<number>(0);
   const { setHistory } = useAppContext();
 
+  const isValid = !url || isValidUrl(url);
+
   const submitHandler = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (url.trim() === "") {
-      setIsValid(false);
+    if (url.trim() === "" || !isValidUrl(url)) {
       return;
     }
 
@@ -132,10 +132,6 @@ const NewChat = () => {
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    setIsValid(isValidUrl(url));
-  }, [url]);
 
   return (
     <div
